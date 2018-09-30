@@ -1,0 +1,9 @@
+[
+  {
+    "clientId": "guid",
+    "key": "string",
+    "tenantId": "guid",
+    "url": "https://manage.devcenter.microsoft.com",
+    "urlPrefix": "v1.0/my"
+  }
+]

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2005
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurfaceDevCenterManager", "SurfaceDevCenterManager\SurfaceDevCenterManager.csproj", "{6D5FB1F6-29EB-49E4-9B10-CB60B30265F2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AnyCPU = Debug|AnyCPU
+		Release|AnyCPU = Release|AnyCPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6D5FB1F6-29EB-49E4-9B10-CB60B30265F2}.Debug|AnyCPU.ActiveCfg = Debug|Any CPU
+		{6D5FB1F6-29EB-49E4-9B10-CB60B30265F2}.Debug|AnyCPU.Build.0 = Debug|Any CPU
+		{6D5FB1F6-29EB-49E4-9B10-CB60B30265F2}.Release|AnyCPU.ActiveCfg = Release|Any CPU
+		{6D5FB1F6-29EB-49E4-9B10-CB60B30265F2}.Release|AnyCPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E256CD1B-4950-40D3-9303-F6F68AD44EAC}
+	EndGlobalSection
+EndGlobal

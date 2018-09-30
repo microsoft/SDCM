@@ -1,3 +1,8 @@
+# Surface Dev Center Manager (SDCM)
+
+Surface Dev Center manager is a tool that utilizes the REST APIs made available by Microsoft Dev Center to automate many common tasks for hardware development and maintenance, particularly around driver and firmware management.
+
+SDCM enables you to create Attestation and WHQL products, submissions, download the resulting signed packages and manage shipping labels to release software on Windows Update.
 
 # Contributing
 
