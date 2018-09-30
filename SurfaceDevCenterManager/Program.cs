@@ -111,7 +111,7 @@ namespace SurfaceDevCenterManager
             };
 
             Console.WriteLine("SurfaceDevCenterManager v" + Assembly.GetExecutingAssembly().GetName().Version);
-            Console.WriteLine("    by Scott Fudally");
+            Console.WriteLine("Copyright (c) Microsoft Corporation. All rights reserved.");
 
             List<string> extra;
             try

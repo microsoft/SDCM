@@ -1,19 +1,1 @@
-# Surface Dev Center Manager (SDCM)
-
-Surface Dev Center manager is a tool that utilizes the REST APIs made available by Microsoft Dev Center to automate many common tasks for hardware development and maintenance, particularly around driver and firmware management.
-
-SDCM enables you to create Attestation and WHQL products, submissions, download the resulting signed packages and manage shipping labels to release software on Windows Update.
-
-# Contributing
-
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.microsoft.com.
-
-When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+﻿﻿# ﻿﻿Surface Dev Center Manager (SDCM)Surface Dev Center Manager is a tool that utilizes the REST APIs made available by Microsoft Hardware Dev Center to automate many common tasks for hardware development and maintenance around driver and firmware management.SDCM enables you to create Attestation and WHQL products, submissions, download the resulting signed packages and manage shipping labels to release software on Windows Update.This tool is based on the[Hardware Dev Center API](https://docs.microsoft.com/en-us/windows-hardware/drivers/dashboard/dashboard-api) and detailed options are available with the -?, -h or -help option at the command line.# Getting Started- Clone the repo- Follow the steps here to [setup your app](https://docs.microsoft.com/en-us/windows-hardware/drivers/dashboard/dashboard-api#associate-an-azure-ad-application-with-your-windows-dev-center-account) to get credentials- Edit authconfig.json to the appropriate values after your app was set up    - Change clientId, tenantId and key to match the values from your app registration    - You should not have to change the url or urlPrefix- Build the project# Basic Operations## Create Something 1## Create Something 2#WHQL signing a Driver## step 1#Attestation signing a Driver## step 2#Creating a Shipping Label## step 3# ContributingThis project welcomes contributions and suggestions.  Most contributions require you to agree to aContributor License Agreement (CLA) declaring that you have the right to, and actually do, grant usthe rights to use your contribution. For details, visit https://cla.microsoft.com.When you submit a pull request, a CLA-bot will automatically determine whether you need to providea CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructionsprovided by the bot. You will only need to do this once across all repos using our CLA.This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) orcontact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
