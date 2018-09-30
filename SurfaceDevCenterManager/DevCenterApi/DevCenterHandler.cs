@@ -85,7 +85,7 @@ namespace SurfaceDevCenterManager.DevCenterAPI
         /// Gets a list of products or a specific product from HWDC
         /// </summary>
         /// <param name="ProductId">Gets all products if null otherwise retrieves the specified product</param>
-        /// <returns>Dev Center response with either an error or a Product if created successfully</returns>
+        /// <returns>Dev Center response with either an error or a Product if queried successfully</returns>
         public async Task<DevCenterResponse<Product>> GetProducts(string ProductId = null)
         {
             DevCenterResponse<Product> retval = null;
@@ -181,8 +181,9 @@ namespace SurfaceDevCenterManager.DevCenterAPI
         /// <summary>
         /// Gets a list of submissions or a specific submission from HWDC
         /// </summary>
-        /// <param name="ProductId">Gets all submissions if null otherwise retrieves the specified submission</param>
-        /// <returns>Dev Center response with either an error or a Submission if created successfully</returns>
+        /// <param name="ProductId">Specifiy the Product ID for this Submission</param>
+        /// <param name="SubmissionId">Gets all submissions if null otherwise retrieves the specified submission</param>
+        /// <returns>Dev Center response with either an error or a Submission if queried successfully</returns>
         public async Task<DevCenterResponse<Submission>> GetSubmission(string ProductId, string SubmissionId = null)
         {
             DevCenterResponse<Submission> retval = null;
@@ -235,7 +236,7 @@ namespace SurfaceDevCenterManager.DevCenterAPI
         /// </summary>
         /// <param name="ProductId">Specifiy the Product ID for the Submission to commit</param>
         /// <param name="SubmissionId">Specifiy the Submission ID for the Submission to commit</param>
-        /// <returns>Dev Center response with either an error or a Submission if created successfully</returns>
+        /// <returns>Dev Center response with either an error or a true if comitted successfully</returns>
         public async Task<bool> CommitSubmission(string ProductId, string SubmissionId)
         {
             bool retval = false;
@@ -246,9 +247,7 @@ namespace SurfaceDevCenterManager.DevCenterAPI
             {
                 Uri restApi = new Uri(CommitProductSubmissionUrl);
 
-                StringContent postcontent = new StringContent("{}",
-                                                              System.Text.Encoding.UTF8,
-                                                              "application/json");
+                StringContent postcontent = new StringContent("{}", System.Text.Encoding.UTF8, "application/json");
 
                 HttpResponseMessage infoResult = await client.PostAsync(restApi, postcontent);
 
@@ -261,7 +260,13 @@ namespace SurfaceDevCenterManager.DevCenterAPI
         }
 
         private const string DevCenterShippingLabelUrl = "/hardware/products/{0}/submissions/{1}/shippingLabels";
-
+        /// <summary>
+        /// Creates a new Shipping Label in HWDC with the specified options
+        /// </summary>
+        /// <param name="ProductId">Specifiy the Product ID for this Shipping Label</param>
+        /// <param name="SubmissionId">Specifiy the Submission ID for this Shipping Label</param>
+        /// <param name="shippingLabelInfo">Options for the new Shipping Label to be generated</param>
+        /// <returns>Dev Center response with either an error or a ShippingLabel if created successfully</returns>
         public async Task<DevCenterResponse<ShippingLabel>> NewShippingLabel(string ProductId, string SubmissionId, NewShippingLabel shippingLabelInfo)
         {
             DevCenterResponse<ShippingLabel> retval = null;
@@ -301,6 +306,13 @@ namespace SurfaceDevCenterManager.DevCenterAPI
             return retval;
         }
 
+        /// <summary>
+        /// Gets a list of shipping labels or a specific shipping label from HWDC
+        /// </summary>
+        /// <param name="ProductId">Specifiy the Product ID for this Shipping Label</param>
+        /// <param name="SubmissionId">Specifiy the Submission ID for this Shipping Label</param>
+        /// <param name="ShippingLabelId">Gets all Shipping Labels if null otherwise retrieves the specified Shipping Label</param>
+        /// <returns>Dev Center response with either an error or a ShippingLabel if queried successfully</returns>
         public async Task<DevCenterResponse<ShippingLabel>> GetShippingLabels(string ProductId, string SubmissionId, string ShippingLabelId = null)
         {
             DevCenterResponse<ShippingLabel> retval = null;
@@ -363,6 +375,10 @@ namespace SurfaceDevCenterManager.DevCenterAPI
         }
 
         private const string DevCenterAudienceUrl = "/hardware/audiences";
+        /// <summary>
+        /// Gets a list of valid audiences from HWDC
+        /// </summary>
+        /// <returns>Dev Center response with either an error or a Audience if queried successfully</returns>
         public async Task<DevCenterResponse<Audience>> GetAudiences()
         {
             DevCenterResponse<Audience> retval = null;

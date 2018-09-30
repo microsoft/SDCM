@@ -64,11 +64,16 @@ namespace SurfaceDevCenterManager
 
             if (System.Diagnostics.Debugger.IsAttached)
             {
+                //Break debugger to look at command line output before the window disappears
                 System.Diagnostics.Debugger.Break();
             }
             return result;
         }
 
+        /// <summary>
+        /// Processes command line args and calls into HWDC
+        /// </summary>
+        /// <returns>Returns 0 success, non-zero on error</returns>
         private static async Task<int> MainAsync(string[] args)
         {
             int retval = 0;
@@ -941,22 +946,17 @@ namespace SurfaceDevCenterManager
         private static async Task<List<AuthorizationHandlerCredentials>> GetApiCreds(string CredentialsOption, string AADAuthenticationOption)
         {
             List<AuthorizationHandlerCredentials> myCreds = null;
-            // Check for stored creds
-
             if (CredentialsOption == null)
             {
                 CredentialsOption = "AADThenFile";
             }
             CredentialsOption = CredentialsOption.ToLowerInvariant();
 
-
-            //If not, check web
             if ((CredentialsOption.CompareTo("aadonly") == 0) || (CredentialsOption.CompareTo("aadthenfile") == 0))
             {
                 myCreds = await GetWebApiCreds(AADAuthenticationOption);
             }
 
-            //if not, check local
             if (myCreds == null)
             {
                 if ((CredentialsOption.CompareTo("fileonly") == 0) || (CredentialsOption.CompareTo("aadthenfile") == 0))
@@ -1000,14 +1000,9 @@ namespace SurfaceDevCenterManager
 
             Uri WebAPIUri = new Uri(url);
 
-            // Native client application settings
             string clientID = ConfigurationManager.AppSettings["clientID"];
             Uri redirectUri = new Uri(ConfigurationManager.AppSettings["redirectUri"]);
-
-            // Resource settings this application wants to access
             string resource = ConfigurationManager.AppSettings["resource"];
-
-            // Session to Azure AD
             string authority = ConfigurationManager.AppSettings["authority"];
             AuthenticationContext authContext = new AuthenticationContext(authority);
 
@@ -1027,7 +1022,6 @@ namespace SurfaceDevCenterManager
                 platformParams = new PlatformParameters(PromptBehavior.Always);
             }
 
-            // Authenticate the user and get a token from Azure AD
             AuthenticationResult authResult = null;
             bool retryAuth = false;
 
@@ -1054,7 +1048,6 @@ namespace SurfaceDevCenterManager
                 }
             }
 
-            // Call the Web API to get the values
             Uri restApi = new Uri(WebAPIUri, "/api/credentials");
 
             if (authResult != null)
