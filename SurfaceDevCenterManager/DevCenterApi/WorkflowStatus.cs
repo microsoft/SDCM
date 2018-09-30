@@ -18,8 +18,7 @@ namespace SurfaceDevCenterManager.DevCenterAPI
 
         [JsonProperty("messages")]
         public List<string> Messages { get; set; }
-
-        //Not documented on MSDN but shows up when submissions fail
+        
         [JsonProperty("errorReport")]
         public string ErrorReport { get; set; }
     }

@@ -19,6 +19,10 @@ namespace SurfaceDevCenterManager.Utility
         private string _AccessToken;
         private readonly AuthorizationHandlerCredentials AuthCredentials;
 
+        /// <summary>
+        /// Handles OAuth Tokens for HTTP request to Microsoft Hardware Dev Center
+        /// </summary>
+        /// <param name="credentials">The set of credentials to use for the token acquitisiton</param>
         public AuthorizationHandler(AuthorizationHandlerCredentials credentials)
         {
             _AccessToken = null;
@@ -26,40 +30,52 @@ namespace SurfaceDevCenterManager.Utility
             InnerHandler = new HttpClientHandler();
         }
 
+        /// <summary>
+        /// Inserts Bearer token into HTTP requests and also does a retry on failed requests since 
+        /// HWDC sometimes fails
+        /// </summary>
+        /// <param name="request">HTTP Request to send</param>
+        /// <param name="cancellationToken">CancellationToken in case the request is cancelled</param>
+        /// <returns>Returns the HttpResonseMessage from the request</returns>
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            //Clone the original request so we have a copy in case of a failure
             HttpRequestMessage clonedRequest = await CloneHttpRequestMessageAsync(request);
 
+            //If there is no valid access token for HWDC, get one and then add it to the request
             if (_AccessToken == null)
             {
                 await ObtainAccessToken();
             }
             request.Headers.Add("Authorization", "Bearer " + _AccessToken);
 
+            //Send request
             HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
 
+            //If unauthorized, the token likely expired so get a new one
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 try
                 {
+                    //Get a new access token
                     if (await ObtainAccessToken())
                     {
+                        //Add token to cloned request and resend
                         clonedRequest.Headers.Add("Authorization", "Bearer " + _AccessToken);
                         response = await base.SendAsync(clonedRequest, cancellationToken);
                     }
                 }
                 catch (InvalidOperationException)
                 {
-                    // user cancelled auth, so lets return the original response
                     return response;
                 }
             }
             else if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
-                //Wait, retry due to dev center fails
+                //Somtimes HWDC returns 500 errors so wait a bit then retry once instead of failing the whole flow
                 Thread.Sleep(2000);
 
-                // Resend the request
+                // Resend the request with the token
                 clonedRequest.Headers.Add("Authorization", "Bearer " + _AccessToken);
                 response = await base.SendAsync(clonedRequest, cancellationToken);
             }
@@ -102,7 +118,10 @@ namespace SurfaceDevCenterManager.Utility
             return IsSuccess;
         }
 
-        public static async Task<HttpRequestMessage> CloneHttpRequestMessageAsync(HttpRequestMessage request)
+        //
+        // https://stackoverflow.com/questions/21467018/how-to-forward-an-httprequestmessage-to-another-server
+        //
+        private static async Task<HttpRequestMessage> CloneHttpRequestMessageAsync(HttpRequestMessage request)
         {
             HttpRequestMessage clone = new HttpRequestMessage(request.Method, request.RequestUri);
 
@@ -123,7 +142,6 @@ namespace SurfaceDevCenterManager.Utility
                     }
                 }
             }
-
             clone.Version = request.Version;
 
             foreach (KeyValuePair<string, object> prop in request.Properties)

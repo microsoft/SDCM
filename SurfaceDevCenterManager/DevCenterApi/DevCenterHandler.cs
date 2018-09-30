@@ -12,13 +12,15 @@ using System.Threading.Tasks;
 
 namespace SurfaceDevCenterManager.DevCenterAPI
 {
-    //Reference Link:
-    //https://docs.microsoft.com/en-us/windows/uwp/monetize/access-analytics-data-using-windows-store-services#prerequisites
     internal sealed class DevCenterHandler : IDisposable
     {
         private readonly DelegatingHandler AuthHandler;
         private readonly AuthorizationHandlerCredentials AuthCredentials;
 
+        /// <summary>
+        /// Creates a new DevCenterHandler using the provided credentials
+        /// </summary>
+        /// <param name="credentials">Authorization credentials for HWDC</param>
         public DevCenterHandler(AuthorizationHandlerCredentials credentials)
         {
             AuthCredentials = credentials;
@@ -36,6 +38,12 @@ namespace SurfaceDevCenterManager.DevCenterAPI
         }
 
         private const string DevCenterProductsUrl = "/hardware/products";
+
+        /// <summary>
+        /// Creates a new New Product in HWDC with the specified options
+        /// </summary>
+        /// <param name="input">Options for the new Product to be generated</param>
+        /// <returns>Dev Center response with either an error or a Product if created successfully</returns>
         public async Task<DevCenterResponse<Product>> NewProduct(NewProduct input)
         {
             DevCenterResponse<Product> retval = null;
@@ -46,9 +54,7 @@ namespace SurfaceDevCenterManager.DevCenterAPI
                 Uri restApi = new Uri(NewProductsUrl);
 
                 string json = JsonConvert.SerializeObject(input);
-                StringContent postcontent = new StringContent(json,
-                                                              System.Text.Encoding.UTF8,
-                                                              "application/json");
+                StringContent postcontent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
                 HttpResponseMessage infoResult = await client.PostAsync(restApi, postcontent);
 
@@ -75,6 +81,11 @@ namespace SurfaceDevCenterManager.DevCenterAPI
             return retval;
         }
 
+        /// <summary>
+        /// Gets a list of products or a specific product from HWDC
+        /// </summary>
+        /// <param name="ProductId">Gets all products if null otherwise retrieves the specified product</param>
+        /// <returns>Dev Center response with either an error or a Product if created successfully</returns>
         public async Task<DevCenterResponse<Product>> GetProducts(string ProductId = null)
         {
             DevCenterResponse<Product> retval = null;
@@ -96,7 +107,6 @@ namespace SurfaceDevCenterManager.DevCenterAPI
                 retval = new DevCenterResponse<Product>();
                 if (infoResult.IsSuccessStatusCode)
                 {
-                    //dynamic jObj = JsonConvert.DeserializeObject(content);
                     if (ProductId != null)
                     {
                         Product ret = JsonConvert.DeserializeObject<Product>(content);
@@ -124,7 +134,13 @@ namespace SurfaceDevCenterManager.DevCenterAPI
         }
 
         private const string DevCenterProductSubmissionUrl = "/hardware/products/{0}/submissions";
-        public async Task<DevCenterResponse<Submission>> NewProductSubmission(string ProductId, NewSubmission submissionInfo)
+        /// <summary>
+        /// Creates a new Submission in HWDC with the specified options
+        /// </summary>
+        /// <param name="ProductId">Specifiy the Product ID for this Submission</param>
+        /// <param name="submissionInfo">Options for the new Submission to be generated</param>
+        /// <returns>Dev Center response with either an error or a Submission if created successfully</returns>
+        public async Task<DevCenterResponse<Submission>> NewSubmission(string ProductId, NewSubmission submissionInfo)
         {
             DevCenterResponse<Submission> retval = null;
             string NewProductSubmissionUrl = GetDevCenterBaseUrl() + string.Format(DevCenterProductSubmissionUrl, Uri.EscapeDataString(ProductId));
@@ -134,9 +150,7 @@ namespace SurfaceDevCenterManager.DevCenterAPI
                 Uri restApi = new Uri(NewProductSubmissionUrl);
 
                 string json = JsonConvert.SerializeObject(submissionInfo);
-                StringContent postcontent = new StringContent(json,
-                                                              System.Text.Encoding.UTF8,
-                                                              "application/json");
+                StringContent postcontent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
                 HttpResponseMessage infoResult = await client.PostAsync(restApi, postcontent);
 
@@ -164,7 +178,12 @@ namespace SurfaceDevCenterManager.DevCenterAPI
             return retval;
         }
 
-        public async Task<DevCenterResponse<Submission>> GetProductSubmission(string ProductId, string SubmissionId = null)
+        /// <summary>
+        /// Gets a list of submissions or a specific submission from HWDC
+        /// </summary>
+        /// <param name="ProductId">Gets all submissions if null otherwise retrieves the specified submission</param>
+        /// <returns>Dev Center response with either an error or a Submission if created successfully</returns>
+        public async Task<DevCenterResponse<Submission>> GetSubmission(string ProductId, string SubmissionId = null)
         {
             DevCenterResponse<Submission> retval = null;
             string GetProductSubmissionUrl = GetDevCenterBaseUrl() + string.Format(DevCenterProductSubmissionUrl, Uri.EscapeDataString(ProductId));
@@ -185,7 +204,6 @@ namespace SurfaceDevCenterManager.DevCenterAPI
                 retval = new DevCenterResponse<Submission>();
                 if (infoResult.IsSuccessStatusCode)
                 {
-                    //dynamic jObj = JsonConvert.DeserializeObject(content);
                     if (SubmissionId != null)
                     {
                         Submission ret = JsonConvert.DeserializeObject<Submission>(content);
@@ -212,7 +230,13 @@ namespace SurfaceDevCenterManager.DevCenterAPI
             return retval;
         }
 
-        public async Task<bool> CommitProductSubmission(string ProductId, string SubmissionId)
+        /// <summary>
+        /// Commits a Submission in HWDC
+        /// </summary>
+        /// <param name="ProductId">Specifiy the Product ID for the Submission to commit</param>
+        /// <param name="SubmissionId">Specifiy the Submission ID for the Submission to commit</param>
+        /// <returns>Dev Center response with either an error or a Submission if created successfully</returns>
+        public async Task<bool> CommitSubmission(string ProductId, string SubmissionId)
         {
             bool retval = false;
             string CommitProductSubmissionUrl = GetDevCenterBaseUrl() + string.Format(DevCenterProductSubmissionUrl, Uri.EscapeDataString(ProductId)) +

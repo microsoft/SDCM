@@ -111,7 +111,6 @@ namespace SurfaceDevCenterManager
             };
 
             Console.WriteLine("SurfaceDevCenterManager v" + Assembly.GetExecutingAssembly().GetName().Version);
-            Console.WriteLine("Copyright (c) Microsoft Corporation. All rights reserved.");
 
             List<string> extra;
             try
@@ -192,7 +191,7 @@ namespace SurfaceDevCenterManager
                     if (retval == 0)
                     {
                         Console.WriteLine("> Creating Submission");
-                        DevCenterResponse<Submission> ret = await api.NewProductSubmission(ProductId, createInput.CreateSubmission);
+                        DevCenterResponse<Submission> ret = await api.NewSubmission(ProductId, createInput.CreateSubmission);
                         if (ret == null || ret.Error != null)
                         {
                             Console.WriteLine("ERROR");
@@ -225,7 +224,7 @@ namespace SurfaceDevCenterManager
                         Console.WriteLine("> Get Driver Metadata");
                         string tmpfile = System.IO.Path.GetTempFileName();
 
-                        DevCenterResponse<Submission> retSubmission = await api.GetProductSubmission(ProductId, SubmissionId);
+                        DevCenterResponse<Submission> retSubmission = await api.GetSubmission(ProductId, SubmissionId);
                         if (retSubmission == null || retSubmission.Error != null)
                         {
                             Console.WriteLine("ERROR");
@@ -315,7 +314,7 @@ namespace SurfaceDevCenterManager
                 if (retval == 0)
                 {
                     Console.WriteLine("> Sending Commit");
-                    if (await api.CommitProductSubmission(ProductId, SubmissionId))
+                    if (await api.CommitSubmission(ProductId, SubmissionId))
                     {
                         Console.WriteLine("> Commit OK");
                     }
@@ -354,7 +353,7 @@ namespace SurfaceDevCenterManager
                         break;
                     case DevCenterHWSubmissionType.Submission:
                         {
-                            DevCenterResponse<Submission> ret = await api.GetProductSubmission(ProductId, SubmissionId);
+                            DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                             if (ret == null || ret.Error != null)
                             {
                                 Console.WriteLine("ERROR");
@@ -434,7 +433,7 @@ namespace SurfaceDevCenterManager
                 if (retval == 0)
                 {
                     Console.WriteLine("> Fetch Submission Info");
-                    DevCenterResponse<Submission> ret = await api.GetProductSubmission(ProductId, SubmissionId);
+                    DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                     if (ret == null || ret.Error != null)
                     {
                         Console.WriteLine("ERROR");
@@ -474,7 +473,7 @@ namespace SurfaceDevCenterManager
                 if (retval == 0)
                 {
                     Console.WriteLine("> Fetch Submission Info");
-                    DevCenterResponse<Submission> ret = await api.GetProductSubmission(ProductId, SubmissionId);
+                    DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                     if (ret == null || ret.Error != null)
                     {
                         Console.WriteLine("ERROR");
@@ -521,7 +520,7 @@ namespace SurfaceDevCenterManager
                 if (retval == 0)
                 {
                     Console.WriteLine("> Fetch Submission Info");
-                    DevCenterResponse<Submission> ret = await api.GetProductSubmission(ProductId, SubmissionId);
+                    DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                     if (ret == null || ret.Error != null)
                     {
                         Console.WriteLine("ERROR");
@@ -569,7 +568,7 @@ namespace SurfaceDevCenterManager
                     {
                         if (ShippingLabelId == null)
                         {
-                            DevCenterResponse<Submission> ret = await api.GetProductSubmission(ProductId, SubmissionId);
+                            DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                             if (ret == null || ret.Error != null)
                             {
                                 Console.WriteLine("ERROR");

@@ -16,11 +16,20 @@ namespace SurfaceDevCenterManager.Utility
         private readonly CloudBlockBlob blob;
         private const int BlockSize = 256 * 1024;
 
+        /// <summary>
+        /// Handles upload and download of files for HWDC Azure Blob Storage URLs
+        /// </summary>
+        /// <param name="SASUrl">URL String to the blob</param>
         public BlobStorageHandler(string SASUrl)
         {
             blob = new CloudBlockBlob(new Uri(SASUrl));
         }
 
+        /// <summary>
+        /// Uploads specified file to HWDC Azure Storage
+        /// </summary>
+        /// <param name="filepath">Path to the file to upload to the Azure Blob URL</param>
+        /// <returns>True if the upload succeeded</returns>
         public async Task<bool> Upload(string filepath)
         {
             fileSize = new System.IO.FileInfo(filepath).Length;
@@ -35,7 +44,7 @@ namespace SurfaceDevCenterManager.Utility
             return true;
         }
 
-        public void ReportProgress(Microsoft.WindowsAzure.Storage.Core.Util.StorageProgress value)
+        private void ReportProgress(Microsoft.WindowsAzure.Storage.Core.Util.StorageProgress value)
         {
             long percent = (int)(value.BytesTransferred * 100) / fileSize;
             Console.Write("\b\b\b\b{0,3:##0}%", percent);
@@ -43,6 +52,11 @@ namespace SurfaceDevCenterManager.Utility
 
         private long fileSize;
 
+        /// <summary>
+        /// Downloads to specified file from HWDC Azure Storage
+        /// </summary>
+        /// <param name="filepath">Path to the file to download to from the Azure Blob URL</param>
+        /// <returns>True if the download succeeded</returns>
         public async Task<bool> Download(string filepath)
         {
             blob.FetchAttributes();
