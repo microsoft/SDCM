@@ -39,13 +39,13 @@ Please refer to the [Hardware Dev Center API](https://docs.microsoft.com/en-us/w
 For an Attestation submission, change testHarness to Attestation.
 
 ## Creating a Submission
->{
->  "createType": "submission",
->  "createSubmission": {
->    "name": "ProductName_HLK_Submission",
->    "type":  "initial"
->  }
->}
+> {
+>   "createType": "submission",
+>   "createSubmission": {
+>     "name": "ProductName_HLK_Submission",
+>     "type":  "initial"
+>   }
+> }
 
 ## Creating a Shipping Label
 > {
@@ -96,39 +96,39 @@ Note that SDCM will auto-populate and publish all hardware IDs found in a Submis
 # Basic Operations
 ## Create a Product
 - Create a json file 'Create_ProductName_HLK.json' using the Product json example above
-- sdcm.exe -create Create_ProductName_HLK.json
+> sdcm.exe -create Create_ProductName_HLK.json
 - This will output a Product ID (PID) if successful
 ## List the Product
 - Verify the product was created by listing the details.
-- sdcm.exe -list product -productid PID
+> sdcm.exe -list product -productid PID
 ## List the Product
 - Verify the product was created by listing the details.
-- sdcm.exe -list product -productid PID
+> sdcm.exe -list product -productid PID
 ##Create a Submission
 - Create a json file 'Create_ProductName_Submission_HLK.json' using the Submission json example above
-- sdcm.exe -create Create_ProductName_Submission_HLK.json -productid PID
+> sdcm.exe -create Create_ProductName_Submission_HLK.json -productid PID
 - This will output a Submission ID (SID) if successful
 ## List the Submission
 - List all the submissions for the product
-    - sdcm.exe -list submission -productid PID
+> sdcm.exe -list submission -productid PID
 - List a specific submission for the product
-    - sdcm.exe -list submission -productid PID -submissionid SID
+> sdcm.exe -list submission -productid PID -submissionid SID
 ## Upload a package to a Submission
 - Make sure the package (.cab or .hlkx) is signed by the EV Cert registered with your Hardware Dev Center Account
-- sdcm.exe -upload test.hlkx -productid PID -submissionid SID
+> sdcm.exe -upload test.hlkx -productid PID -submissionid SID
 ## Commit a Submission
 - When everything is ready to start processing the submission, commit it
-- sdcm.exe -commit -productid PID -submissionid SID
+> sdcm.exe -commit -productid PID -submissionid SID
 ## Wait for a Submission to be Ready
-- sdcm.exe -wait -productid PID -submissionid SID
+> sdcm.exe -wait -productid PID -submissionid SID
 ## Download files from a Submission
-- sdcm.exe -download hlksigned.zip -productid PID -submissionid SID
+> sdcm.exe -download hlksigned.zip -productid PID -submissionid SID
 
-#WHQL signing a Driver
+# WHQL signing a Driver
 See HLKx.ps1 in the Scripts folder
-#Attestation signing a Driver
+# Attestation signing a Driver
 See Attestation.ps1 in the Scripts folder
-#Creating a Shipping Label
+# Creating a Shipping Label
 See ShippingLabel.ps1 in the Scripts folder
 
 
