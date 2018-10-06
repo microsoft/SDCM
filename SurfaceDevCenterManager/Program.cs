@@ -3,18 +3,14 @@
 
     Licensed under the MIT license.  See LICENSE file in the project root for full license information.  
 --*/
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Mono.Options;
 using Newtonsoft.Json;
 using SurfaceDevCenterManager.DevCenterAPI;
 using SurfaceDevCenterManager.Utility;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using System.IO;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -49,7 +45,7 @@ namespace SurfaceDevCenterManager
 
         private static int Main(string[] args)
         {
-            int result = -1;
+            ErrorCodes result = ErrorCodes.UNSPECIFIED;
 
             try
             {
@@ -59,24 +55,25 @@ namespace SurfaceDevCenterManager
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.InnerException);
-                result = -1;
+                result = ErrorCodes.UNHANDLED_EXCEPTION;
             }
 
+            Console.WriteLine("Return: {0} ({1})", (int)result, result.ToString());
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 //Break debugger to look at command line output before the window disappears
                 System.Diagnostics.Debugger.Break();
             }
-            return result;
+            return (int)result;
         }
 
         /// <summary>
         /// Processes command line args and calls into HWDC
         /// </summary>
         /// <returns>Returns 0 success, non-zero on error</returns>
-        private static async Task<int> MainAsync(string[] args)
+        private static async Task<ErrorCodes> MainAsync(string[] args)
         {
-            int retval = 0;
+            ErrorCodes retval = ErrorCodes.SUCCESS;
             bool show_help = false;
             string CreateOption = null;
             bool CommitOption = false;
@@ -126,41 +123,41 @@ namespace SurfaceDevCenterManager
             {
                 ErrorParsingOptions(e.Message);
                 Console.WriteLine("Try running with just '--help' for more information.");
-                return -1;
+                return ErrorCodes.COMMAND_LINE_OPTION_PARSING_FAILED;
             }
 
             if (show_help)
             {
                 ShowHelp(p);
-                return -2;
+                return ErrorCodes.SUCCESS;
             }
 
-            List<AuthorizationHandlerCredentials> myCreds = await GetApiCreds(CredentialsOption, AADAuthenticationOption);
+            List<AuthorizationHandlerCredentials> myCreds = await DevCenterCredentialsHandler.GetApiCreds(CredentialsOption, AADAuthenticationOption);
 
             if (myCreds == null)
             {
                 ErrorParsingOptions("Unable to get Dev Center Credentials");
-                return -7;
+                return ErrorCodes.NO_DEV_CENTER_CREDENTIALS_FOUND;
             }
 
             if (OverrideServer < 0 || OverrideServer >= myCreds.Count)
             {
                 ErrorParsingOptions("OverrideServer invalid - " + OverrideServer);
-                return -5;
+                return ErrorCodes.OVERRIDE_SERVER_INVALID;
             }
             DevCenterHandler api = new DevCenterHandler(myCreds[OverrideServer]);
 
             if (CreateOption != null && (!File.Exists(CreateOption)))
             {
                 ErrorParsingOptions("CreateOption invalid - " + CreateOption);
-                return -3;
+                return ErrorCodes.CREATE_INPUT_FILE_DOES_NOT_EXIST;
             }
 
             DevCenterHWSubmissionType ListOptionEnum = DevCenterHWSubmissionTypeCheck(ListOption);
             if (ListOption != null && ListOptionEnum == DevCenterHWSubmissionType.Invalid)
             {
                 ErrorParsingOptions("ListOption invalid - " + ListOption);
-                return -4;
+                return ErrorCodes.NO_DEV_CENTER_CREDENTIALS_FOUND;
             }
 
             if (CreateOption != null)
@@ -177,7 +174,7 @@ namespace SurfaceDevCenterManager
                         Console.WriteLine("ERROR");
                         Console.WriteLine(ret.Error.Code ?? "");
                         Console.WriteLine(ret.Error.Message ?? "");
-                        retval = -1001;
+                        retval = ErrorCodes.NEW_PRODUCT_API_FAILED;
                     }
                     else
                     {
@@ -190,7 +187,7 @@ namespace SurfaceDevCenterManager
                     if (ProductId == null)
                     {
                         Console.WriteLine("> ERROR: productid not specified");
-                        retval = -2000;
+                        retval = ErrorCodes.NEW_SUBMISSION_PRODUCT_ID_MISSING;
                     }
 
                     if (retval == 0)
@@ -202,7 +199,7 @@ namespace SurfaceDevCenterManager
                             Console.WriteLine("ERROR");
                             Console.WriteLine(ret.Error.Code ?? "");
                             Console.WriteLine(ret.Error.Message ?? "");
-                            retval = -2001;
+                            retval = ErrorCodes.NEW_SUBMISSION_API_FAILED;
                         }
                         else
                         {
@@ -215,13 +212,13 @@ namespace SurfaceDevCenterManager
                     if (ProductId == null)
                     {
                         Console.WriteLine("> ERROR: productid not specified");
-                        retval = -2100;
+                        retval = ErrorCodes.NEW_SHIPPING_LABEL_PRODUCT_ID_MISSING;
                     }
 
                     if (SubmissionId == null)
                     {
                         Console.WriteLine("> ERROR: submissionid not specified");
-                        retval = -2101;
+                        retval = ErrorCodes.NEW_SHIPPING_LABEL_SUBMISSION_ID_MISSING;
                     }
 
                     if (retval == 0)
@@ -235,7 +232,7 @@ namespace SurfaceDevCenterManager
                             Console.WriteLine("ERROR");
                             Console.WriteLine(retSubmission.Error.Code ?? "");
                             Console.WriteLine(retSubmission.Error.Message ?? "");
-                            retval = -2102;
+                            retval = ErrorCodes.NEW_SHIPPING_LABEL_GET_SUBMISSION_API_FAILED;
                         }
 
                         List<Submission> submissions = retSubmission.ReturnValue;
@@ -287,7 +284,7 @@ namespace SurfaceDevCenterManager
                             Console.WriteLine("ERROR");
                             Console.WriteLine(ret.Error.Code ?? "");
                             Console.WriteLine(ret.Error.Message ?? "");
-                            retval = -2103;
+                            retval = ErrorCodes.NEW_SHIPPING_LABEL_CREATE_API_FAILED;
                         }
                         else
                         {
@@ -307,13 +304,13 @@ namespace SurfaceDevCenterManager
                 if (ProductId == null)
                 {
                     Console.WriteLine("> ERROR: productid not specified");
-                    retval = -3000;
+                    retval = ErrorCodes.COMMIT_PRODUCT_ID_MISSING;
                 }
 
                 if (SubmissionId == null)
                 {
                     Console.WriteLine("> ERROR: submissionid not specified");
-                    retval = -3001;
+                    retval = ErrorCodes.COMMIT_SUBMISSION_ID_MISSING;
                 }
 
                 if (retval == 0)
@@ -326,7 +323,7 @@ namespace SurfaceDevCenterManager
                     else
                     {
                         Console.WriteLine("> Commit Failed");
-                        retval = -3002;
+                        retval = ErrorCodes.COMMIT_API_FAILED;
                     }
                 }
             }
@@ -344,7 +341,7 @@ namespace SurfaceDevCenterManager
                                 Console.WriteLine("ERROR");
                                 Console.WriteLine(ret.Error.Code ?? "");
                                 Console.WriteLine(ret.Error.Message ?? "");
-                                retval = -2103;
+                                retval = ErrorCodes.LIST_GET_PRODUCTS_API_FAILED;
                             }
                             else
                             {
@@ -364,7 +361,7 @@ namespace SurfaceDevCenterManager
                                 Console.WriteLine("ERROR");
                                 Console.WriteLine(ret.Error.Code ?? "");
                                 Console.WriteLine(ret.Error.Message ?? "");
-                                retval = -2103;
+                                retval = ErrorCodes.LIST_GET_SUBMISSIOn_API_FAILED;
                             }
                             else
                             {
@@ -384,7 +381,7 @@ namespace SurfaceDevCenterManager
                                 Console.WriteLine("ERROR");
                                 Console.WriteLine(ret.Error.Code ?? "");
                                 Console.WriteLine(ret.Error.Message ?? "");
-                                retval = -2103;
+                                retval = ErrorCodes.LIST_GET_SHIPPING_LABEL_API_FAILED;
                             }
                             else
                             {
@@ -414,25 +411,25 @@ namespace SurfaceDevCenterManager
                 if (!System.IO.Directory.Exists(PathNamePart))
                 {
                     Console.WriteLine("> ERROR: Output path does not exist: " + PathNamePart);
-                    retval = -4010;
+                    retval = ErrorCodes.DOWNLOAD_OUTPUT_PATH_NOT_EXIST;
                 }
 
                 if (System.IO.File.Exists(DownloadOption))
                 {
                     Console.WriteLine("> ERROR: Output file exists already: " + DownloadOption);
-                    retval = -4011;
+                    retval = ErrorCodes.DOWNLOAD_OUTPUT_FILE_ALREADY_EXISTS;
                 }
 
                 if (ProductId == null)
                 {
                     Console.WriteLine("> ERROR: productid not specified");
-                    retval = -4000;
+                    retval = ErrorCodes.DOWNLOAD_PRODUCT_ID_MISSING;
                 }
 
                 if (SubmissionId == null)
                 {
                     Console.WriteLine("> ERROR: submissionid not specified");
-                    retval = -4001;
+                    retval = ErrorCodes.DOWNLOAD_SUBMISSION_ID_MISSING;
                 }
 
                 if (retval == 0)
@@ -444,7 +441,7 @@ namespace SurfaceDevCenterManager
                         Console.WriteLine("ERROR");
                         Console.WriteLine(ret.Error.Code ?? "");
                         Console.WriteLine(ret.Error.Message ?? "");
-                        retval = -4002;
+                        retval = ErrorCodes.DOWNLOAD_GET_SUBMISSION_API_FAILED;
                     }
                     List<Submission> submissions = ret.ReturnValue;
                     List<Download.Item> dls = submissions[0].Downloads.Items;
@@ -466,13 +463,13 @@ namespace SurfaceDevCenterManager
                 if (ProductId == null)
                 {
                     Console.WriteLine("> ERROR: productid not specified");
-                    retval = -4000;
+                    retval = ErrorCodes.METADATA_PRODUCT_ID_MISSING;
                 }
 
                 if (SubmissionId == null)
                 {
                     Console.WriteLine("> ERROR: submissionid not specified");
-                    retval = -4001;
+                    retval = ErrorCodes.METADATA_SUBMISSION_ID_MISSING;
                 }
 
                 if (retval == 0)
@@ -484,7 +481,7 @@ namespace SurfaceDevCenterManager
                         Console.WriteLine("ERROR");
                         Console.WriteLine(ret.Error.Code ?? "");
                         Console.WriteLine(ret.Error.Message ?? "");
-                        retval = -4002;
+                        retval = ErrorCodes.METADATA_GET_SUBMISSION_API_FAILED;
                     }
                     List<Submission> submissions = ret.ReturnValue;
                     List<Download.Item> dls = submissions[0].Downloads.Items;
@@ -513,13 +510,13 @@ namespace SurfaceDevCenterManager
                 if (ProductId == null)
                 {
                     Console.WriteLine("> ERROR: productid not specified");
-                    retval = -5000;
+                    retval = ErrorCodes.UPLOAD_PRODUCT_ID_MISSING;
                 }
 
                 if (SubmissionId == null)
                 {
                     Console.WriteLine("> ERROR: submissionid not specified");
-                    retval = -5001;
+                    retval = ErrorCodes.UPLOAD_SUBMISSION_ID_MISSING;
                 }
 
                 if (retval == 0)
@@ -531,7 +528,7 @@ namespace SurfaceDevCenterManager
                         Console.WriteLine("ERROR");
                         Console.WriteLine(ret.Error.Code ?? "");
                         Console.WriteLine(ret.Error.Message ?? "");
-                        retval = -5002;
+                        retval = ErrorCodes.UPLOAD_GET_SUBMISSION_API_FAILED;
                     }
                     List<Submission> submissions = ret.ReturnValue;
                     List<Download.Item> dls = submissions[0].Downloads.Items;
@@ -554,13 +551,13 @@ namespace SurfaceDevCenterManager
                 if (ProductId == null)
                 {
                     Console.WriteLine("> ERROR: productid not specified");
-                    retval = -6000;
+                    retval = ErrorCodes.WAIT_PRODUCT_ID_MISSING;
                 }
 
                 if (SubmissionId == null)
                 {
                     Console.WriteLine("> ERROR: submissionid not specified");
-                    retval = -6001;
+                    retval = ErrorCodes.WAIT_SUBMISSION_ID_MISSING;
                 }
 
                 if (retval == 0)
@@ -580,7 +577,7 @@ namespace SurfaceDevCenterManager
                                 Console.WriteLine(ret.Error.Code ?? "");
                                 Console.WriteLine(ret.Error.Message ?? "");
                                 done = true;
-                                retval = -7003;
+                                retval = ErrorCodes.WAIT_GET_SUBMISSION_API_FAILED;
                                 break;
                             }
                             List<DevCenterAPI.Submission> submissions = ret.ReturnValue;
@@ -616,7 +613,7 @@ namespace SurfaceDevCenterManager
                                 if (lastState == "failed")
                                 {
                                     done = true;
-                                    retval = -7001;
+                                    retval = ErrorCodes.WAIT_SUBMISSION_FAILED_IN_HWDC;
                                 }
                                 else if (atLastStep)
                                 {
@@ -655,7 +652,7 @@ namespace SurfaceDevCenterManager
                                 Console.WriteLine(ret.Error.Code ?? "");
                                 Console.WriteLine(ret.Error.Message ?? "");
                                 done = true;
-                                retval = -7002;
+                                retval = ErrorCodes.WAIT_GET_SHIPPING_LABEL_API_FAILED;
                                 break;
                             }
                             List<ShippingLabel> shippingLabels = ret.ReturnValue;
@@ -672,7 +669,7 @@ namespace SurfaceDevCenterManager
                             if (lastState == "failed")
                             {
                                 done = true;
-                                retval = -7000;
+                                retval = ErrorCodes.WAIT_SHIPPING_LABEL_FAILED_IN_HWDC;
                             }
                             else if (lastCurrentStep == "microsoftApproval")
                             {
@@ -698,6 +695,7 @@ namespace SurfaceDevCenterManager
                     Console.WriteLine("ERROR");
                     Console.WriteLine(ret.Error.Code ?? "");
                     Console.WriteLine(ret.Error.Message ?? "");
+                    retval = ErrorCodes.AUIDENCE_GET_AUDIENCE_API_FAILED;
                 }
                 else
                 {
@@ -942,133 +940,6 @@ namespace SurfaceDevCenterManager
             Console.WriteLine("               - method: " + link.Method);
             Console.WriteLine("               - rel:    " + link.Rel);
         }
-
-        private static async Task<List<AuthorizationHandlerCredentials>> GetApiCreds(string CredentialsOption, string AADAuthenticationOption)
-        {
-            List<AuthorizationHandlerCredentials> myCreds = null;
-            if (CredentialsOption == null)
-            {
-                CredentialsOption = "AADThenFile";
-            }
-            CredentialsOption = CredentialsOption.ToLowerInvariant();
-
-            if ((CredentialsOption.CompareTo("aadonly") == 0) || (CredentialsOption.CompareTo("aadthenfile") == 0))
-            {
-                myCreds = await GetWebApiCreds(AADAuthenticationOption);
-            }
-
-            if (myCreds == null)
-            {
-                if ((CredentialsOption.CompareTo("fileonly") == 0) || (CredentialsOption.CompareTo("aadthenfile") == 0))
-                {
-                    try
-                    {
-                        string authconfig = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\authconfig.json");
-                        myCreds = JsonConvert.DeserializeObject<List<AuthorizationHandlerCredentials>>(authconfig);
-                        if (myCreds.Count == 0)
-                        {
-                            myCreds = null;
-                        }
-                        else
-                        {
-                            if (myCreds[0].ClientId.CompareTo("guid") == 0)
-                            {
-                                myCreds = null;
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        myCreds = null;
-                    }
-                }
-            }
-
-            return myCreds;
-        }
-
-        private static async Task<List<AuthorizationHandlerCredentials>> GetWebApiCreds(string AADAuthenticationOption)
-        {
-            List<AuthorizationHandlerCredentials> ReturnList = null;
-
-            string url = ConfigurationManager.AppSettings["url"];
-
-            if (url == null)
-            {
-                return null;
-            }
-
-            Uri WebAPIUri = new Uri(url);
-
-            string clientID = ConfigurationManager.AppSettings["clientID"];
-            Uri redirectUri = new Uri(ConfigurationManager.AppSettings["redirectUri"]);
-            string resource = ConfigurationManager.AppSettings["resource"];
-            string authority = ConfigurationManager.AppSettings["authority"];
-            AuthenticationContext authContext = new AuthenticationContext(authority);
-
-            if (AADAuthenticationOption == null)
-            {
-                AADAuthenticationOption = "Never";
-            }
-            AADAuthenticationOption.ToLowerInvariant();
-            PlatformParameters platformParams = new PlatformParameters(PromptBehavior.Never);
-
-            if (AADAuthenticationOption.CompareTo("prompt") == 0)
-            {
-                platformParams = new PlatformParameters(PromptBehavior.Auto);
-            }
-            else if (AADAuthenticationOption.CompareTo("always") == 0)
-            {
-                platformParams = new PlatformParameters(PromptBehavior.Always);
-            }
-
-            AuthenticationResult authResult = null;
-            bool retryAuth = false;
-
-            try
-            {
-                authResult = await authContext.AcquireTokenAsync(resource, clientID, redirectUri, platformParams);
-            }
-            catch (Microsoft.IdentityModel.Clients.ActiveDirectory.AdalException)
-            {
-                retryAuth = true;
-                authResult = null;
-            }
-
-            if (retryAuth)
-            {
-
-                try
-                {
-                    authResult = await authContext.AcquireTokenAsync(resource, clientID, redirectUri, new PlatformParameters(PromptBehavior.Auto));
-                }
-                catch (Microsoft.IdentityModel.Clients.ActiveDirectory.AdalException)
-                {
-                    authResult = null;
-                }
-            }
-
-            Uri restApi = new Uri(WebAPIUri, "/api/credentials");
-
-            if (authResult != null)
-            {
-                using (HttpClient client = new HttpClient())
-                {
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authResult.AccessTokenType, authResult.AccessToken);
-
-                    HttpResponseMessage infoResult = await client.GetAsync(restApi);
-
-                    string content = await infoResult.Content.ReadAsStringAsync();
-
-                    if (infoResult.IsSuccessStatusCode)
-                    {
-                        ReturnList = JsonConvert.DeserializeObject<List<AuthorizationHandlerCredentials>>(content);
-                    }
-                }
-            }
-            return ReturnList;
-        }
-
     }
 }
 

@@ -65,7 +65,9 @@
     <Compile Include="DevCenterAPI\DevCenterErrorDetails.cs" />
     <Compile Include="DevCenterAPI\DevCenterErrorReturn.cs" />
     <Compile Include="DevCenterAPI\DevCenterResponse.cs" />
+    <Compile Include="ErrorCodes.cs" />
     <Compile Include="Utility\AuthorizationHandlerCredentials.cs" />
+    <Compile Include="Utility\DevCenterCredentialsHandler.cs" />
     <Compile Include="Utility\BlobStorageHandler.cs" />
     <Compile Include="DevCenterAPI\Download.cs" />
     <Compile Include="DevCenterAPI\Link.cs" />
