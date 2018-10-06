@@ -138,6 +138,50 @@ namespace SurfaceDevCenterManager.DevCenterAPI
 
         [JsonProperty("destination")]
         public string Destination { get; set; }
+
+        public async void Dump()
+        {
+            Console.WriteLine("---- Shipping Label: " + Id);
+            Console.WriteLine("         Name:        " + Name);
+            Console.WriteLine("         ProductId:   " + ProductId);
+            Console.WriteLine("         SubmissionId:" + SubmissionId);
+
+            Console.WriteLine("         Publishing Specifications:");
+            Console.WriteLine("           publishToWindows10s:" + PublishingSpecifications.PublishToWindows10S);
+            Console.WriteLine("           isDisclosureRestricted:" + PublishingSpecifications.IsDisclosureRestricted);
+            Console.WriteLine("           isAutoInstallOnApplicableSystems:" + PublishingSpecifications.IsAutoInstallOnApplicableSystems);
+            Console.WriteLine("           isAutoInstallDuringOSUpgrade:" + PublishingSpecifications.IsAutoInstallDuringOSUpgrade);
+            Console.WriteLine("           goLiveDate:" + PublishingSpecifications.GoLiveDate);
+            Console.WriteLine("           additionalInfoForMsApproval:");
+            Console.WriteLine("               businessJustification:" + PublishingSpecifications.AdditionalInfoForMsApproval.BusinessJustification);
+            Console.WriteLine("               hasUiSoftware:" + PublishingSpecifications.AdditionalInfoForMsApproval.HasUiSoftware);
+            Console.WriteLine("               isCoEngineered:" + PublishingSpecifications.AdditionalInfoForMsApproval.IsCoEngineered);
+            Console.WriteLine("               isForUnreleasedHardware:" + PublishingSpecifications.AdditionalInfoForMsApproval.IsForUnreleasedHardware);
+            Console.WriteLine("               isRebootRequired:" + PublishingSpecifications.AdditionalInfoForMsApproval.IsRebootRequired);
+            Console.WriteLine("               microsoftContact:" + PublishingSpecifications.AdditionalInfoForMsApproval.MicrosoftContact);
+            Console.WriteLine("               validationsPerformed:" + PublishingSpecifications.AdditionalInfoForMsApproval.ValidationsPerformed);
+            Console.WriteLine("               affectedOems:");
+            foreach (string oem in PublishingSpecifications.AdditionalInfoForMsApproval.AffectedOems)
+            {
+                Console.WriteLine("                            " + oem);
+            }
+
+            Console.WriteLine("         Links:");
+            if (Links != null)
+            {
+                foreach (Link link in Links)
+                {
+                    link.Dump();
+                }
+            }
+            Console.WriteLine("         Status:");
+            if (WorkflowStatus != null)
+            {
+                await WorkflowStatus.Dump();
+            }
+            Console.WriteLine();
+        }
+
     }
 
 }

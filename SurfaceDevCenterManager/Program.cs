@@ -178,7 +178,7 @@ namespace SurfaceDevCenterManager
                     }
                     else
                     {
-                        DumpProduct(ret.ReturnValue[0]);
+                        ret.ReturnValue[0].Dump();
                     }
 
                 }
@@ -203,7 +203,7 @@ namespace SurfaceDevCenterManager
                         }
                         else
                         {
-                            DumpSubmission(ret.ReturnValue[0]);
+                            ret.ReturnValue[0].Dump();
                         }
                     }
                 }
@@ -288,7 +288,7 @@ namespace SurfaceDevCenterManager
                         }
                         else
                         {
-                            DumpShippingLabel(ret.ReturnValue[0]);
+                            ret.ReturnValue[0].Dump();
                         }
                     }
                 }
@@ -348,7 +348,7 @@ namespace SurfaceDevCenterManager
                                 List<DevCenterAPI.Product> products = ret.ReturnValue;
                                 foreach (Product product in products)
                                 {
-                                    DumpProduct(product);
+                                    product.Dump();
                                 }
                             }
                         }
@@ -368,7 +368,7 @@ namespace SurfaceDevCenterManager
                                 List<DevCenterAPI.Submission> submissions = ret.ReturnValue;
                                 foreach (Submission submission in submissions)
                                 {
-                                    DumpSubmission(submission);
+                                    submission.Dump();
                                 }
                             }
                         }
@@ -388,7 +388,7 @@ namespace SurfaceDevCenterManager
                                 List<ShippingLabel> shippingLabels = ret.ReturnValue;
                                 foreach (ShippingLabel shippingLabel in shippingLabels)
                                 {
-                                    DumpShippingLabel(shippingLabel);
+                                    shippingLabel.Dump();
                                 }
                             }
                         }
@@ -402,9 +402,7 @@ namespace SurfaceDevCenterManager
             {
                 Console.WriteLine("> Download Option {0}", DownloadOption);
 
-                // PLE has a habit of passing in strange file names like 'SB2: ' which are invalid paths.  This will catch these and throw a useful error
                 string pathNameFull = System.IO.Path.GetFullPath(DownloadOption);
-
                 string FileNamePart = System.IO.Path.GetFileName(DownloadOption);
                 string PathNamePart = System.IO.Path.GetDirectoryName(DownloadOption);
 
@@ -590,7 +588,7 @@ namespace SurfaceDevCenterManager
                                 {
                                     lastCurrentStep = sub.WorkflowStatus.CurrentStep;
                                     lastState = sub.WorkflowStatus.State;
-                                    await DumpWorkflowStatus(sub.WorkflowStatus);
+                                    await sub.WorkflowStatus.Dump();
                                 }
 
                                 bool haveMetadata = false;
@@ -663,7 +661,7 @@ namespace SurfaceDevCenterManager
                             {
                                 lastCurrentStep = label.WorkflowStatus.CurrentStep;
                                 lastState = label.WorkflowStatus.State;
-                                await DumpWorkflowStatus(label.WorkflowStatus);
+                                await label.WorkflowStatus.Dump();
                             }
 
                             if (lastState == "failed")
@@ -702,7 +700,7 @@ namespace SurfaceDevCenterManager
                     List<Audience> audiences = ret.ReturnValue;
                     foreach (Audience audience in audiences)
                     {
-                        DumpAudience(audience);
+                        audience.Dump();
                     }
                 }
 
@@ -714,37 +712,10 @@ namespace SurfaceDevCenterManager
         private static void ShowHelp(OptionSet p)
         {
             Console.WriteLine("Usage: sdcm [OPTIONS]+");
-            Console.WriteLine("Manage drivers with Microsoft Dev Center for Surface");
+            Console.WriteLine("Surface Dev Center Manager - Manage Microsoft Hardware Dev Center content");
             Console.WriteLine();
             Console.WriteLine("Options:");
             p.WriteOptionDescriptions(Console.Out);
-        }
-
-        private static async Task<bool> DumpWorkflowStatus(WorkflowStatus workflowStatus)
-        {
-            bool retval = true;
-
-            Console.WriteLine("> Step:  {0}", workflowStatus.CurrentStep);
-            Console.WriteLine("> State: {0}", workflowStatus.State);
-            if (workflowStatus.Messages != null)
-            {
-                foreach (string msg in workflowStatus.Messages)
-                {
-                    Console.WriteLine("> Message: {0}", msg);
-                }
-            }
-            if (workflowStatus.ErrorReport != null)
-            {
-                Console.WriteLine("> Error Report:");
-                string tmpfile = System.IO.Path.GetTempFileName();
-                Utility.BlobStorageHandler bsh = new Utility.BlobStorageHandler(workflowStatus.ErrorReport);
-                retval = await bsh.Download(tmpfile);
-
-                string errorContent = System.IO.File.ReadAllText(tmpfile);
-                Console.WriteLine(errorContent);
-                System.IO.File.Delete(tmpfile);
-            }
-            return retval;
         }
 
         private static void ErrorParsingOptions(string message)
@@ -772,174 +743,6 @@ namespace SurfaceDevCenterManager
             return retval;
         }
 
-        private static void DumpProduct(DevCenterAPI.Product product)
-        {
-            Console.WriteLine("---- Product: " + product.Id);
-            Console.WriteLine("         Name:      " + product.ProductName ?? "");
-            Console.WriteLine("         Shared Id: " + product.SharedProductId ?? "");
-            Console.WriteLine("         Type:      " + product.ProductType ?? "");
-            Console.WriteLine("         DevType:   " + product.DeviceType ?? "");
-            Console.WriteLine("         FWVer:     " + product.FirmwareVersion ?? "");
-            Console.WriteLine("         isTestSign:" + product.IsTestSign ?? "");
-            Console.WriteLine("         isFlightSign:" + product.IsFlightSign ?? "");
-            Console.WriteLine("         createdBy: " + product.CreatedBy ?? "");
-            Console.WriteLine("         updatedBy: " + product.UpdatedBy ?? "");
-            Console.WriteLine("         createdDateTime:" + product.CreatedDateTime.ToString("s", CultureInfo.CurrentCulture));
-            Console.WriteLine("         updatedDateTime:" + product.UpdatedDateTime.ToString("s", CultureInfo.CurrentCulture));
-            Console.WriteLine("         announcementDate:" + product.AnnouncementDate.ToString("s", CultureInfo.CurrentCulture));
-            Console.WriteLine("         testHarness:" + product.TestHarness ?? "");
-
-            Console.WriteLine("         Signatures: ");
-            foreach (string sig in product.RequestedSignatures)
-            {
-                Console.WriteLine("                   " + sig);
-            }
-
-            Console.WriteLine("         deviceMetadataIds: ");
-            if (product.DeviceMetadataIds != null)
-            {
-
-                foreach (string sig in product.DeviceMetadataIds)
-                {
-                    Console.WriteLine("                   " + sig);
-                }
-            }
-            Console.WriteLine("         selectedProductTypes: ");
-            if (product.SelectedProductTypes != null)
-            {
-                foreach (KeyValuePair<string, string> entry in product.SelectedProductTypes)
-                {
-                    Console.WriteLine("                   " + entry.Key + ":" + entry.Value);
-                }
-            }
-
-
-            Console.WriteLine("         marketingNames: ");
-            if (product.MarketingNames != null)
-            {
-                foreach (string sig in product.MarketingNames)
-                {
-                    Console.WriteLine("                   " + sig);
-                }
-            }
-
-            Console.WriteLine();
-        }
-
-        private static async void DumpShippingLabel(ShippingLabel shippingLabel)
-        {
-            Console.WriteLine("---- Shipping Label: " + shippingLabel.Id);
-            Console.WriteLine("         Name:        " + shippingLabel.Name);
-            Console.WriteLine("         ProductId:   " + shippingLabel.ProductId);
-            Console.WriteLine("         SubmissionId:" + shippingLabel.SubmissionId);
-
-            Console.WriteLine("         Publishing Specifications:");
-            Console.WriteLine("           publishToWindows10s:" + shippingLabel.PublishingSpecifications.PublishToWindows10S);
-            Console.WriteLine("           isDisclosureRestricted:" + shippingLabel.PublishingSpecifications.IsDisclosureRestricted);
-            Console.WriteLine("           isAutoInstallOnApplicableSystems:" + shippingLabel.PublishingSpecifications.IsAutoInstallOnApplicableSystems);
-            Console.WriteLine("           isAutoInstallDuringOSUpgrade:" + shippingLabel.PublishingSpecifications.IsAutoInstallDuringOSUpgrade);
-            Console.WriteLine("           goLiveDate:" + shippingLabel.PublishingSpecifications.GoLiveDate);
-            Console.WriteLine("           additionalInfoForMsApproval:");
-            Console.WriteLine("               businessJustification:" + shippingLabel.PublishingSpecifications.AdditionalInfoForMsApproval.BusinessJustification);
-            Console.WriteLine("               hasUiSoftware:" + shippingLabel.PublishingSpecifications.AdditionalInfoForMsApproval.HasUiSoftware);
-            Console.WriteLine("               isCoEngineered:" + shippingLabel.PublishingSpecifications.AdditionalInfoForMsApproval.IsCoEngineered);
-            Console.WriteLine("               isForUnreleasedHardware:" + shippingLabel.PublishingSpecifications.AdditionalInfoForMsApproval.IsForUnreleasedHardware);
-            Console.WriteLine("               isRebootRequired:" + shippingLabel.PublishingSpecifications.AdditionalInfoForMsApproval.IsRebootRequired);
-            Console.WriteLine("               microsoftContact:" + shippingLabel.PublishingSpecifications.AdditionalInfoForMsApproval.MicrosoftContact);
-            Console.WriteLine("               validationsPerformed:" + shippingLabel.PublishingSpecifications.AdditionalInfoForMsApproval.ValidationsPerformed);
-            Console.WriteLine("               affectedOems:");
-            foreach (string oem in shippingLabel.PublishingSpecifications.AdditionalInfoForMsApproval.AffectedOems)
-            {
-                Console.WriteLine("                            " + oem);
-            }
-
-            Console.WriteLine("         Links:");
-            if (shippingLabel.Links != null)
-            {
-                foreach (Link link in shippingLabel.Links)
-                {
-                    DumpLink(link);
-                }
-            }
-            Console.WriteLine("         Status:");
-            if (shippingLabel.WorkflowStatus != null)
-            {
-                await DumpWorkflowStatus(shippingLabel.WorkflowStatus);
-            }
-            Console.WriteLine();
-        }
-
-        private static async void DumpSubmission(DevCenterAPI.Submission submission)
-        {
-            Console.WriteLine("---- Submission: " + submission.Id);
-            Console.WriteLine("         Name:        " + submission.Name);
-            Console.WriteLine("         ProductId:   " + submission.ProductId);
-            Console.WriteLine("         type:        " + submission.Type ?? "");
-            Console.WriteLine("         commitStatus:" + submission.CommitStatus ?? "");
-            Console.WriteLine("         CreatedBy:   " + submission.CreatedBy ?? "");
-            Console.WriteLine("         CreateTime:  " + submission.CreatedDateTime ?? "");
-            Console.WriteLine("         Links:");
-            if (submission.Links != null)
-            {
-                foreach (Link link in submission.Links)
-                {
-                    DumpLink(link);
-                }
-            }
-            Console.WriteLine("         Status:");
-            if (submission.WorkflowStatus != null)
-            {
-                await DumpWorkflowStatus(submission.WorkflowStatus);
-            }
-            Console.WriteLine("         Downloads:");
-            Console.WriteLine("               - messages: ");
-            if (submission.Downloads != null)
-            {
-                DumpDownload(submission.Downloads);
-            }
-            Console.WriteLine();
-        }
-
-        private static void DumpAudience(Audience audience)
-        {
-            Console.WriteLine("---- Audience: " + audience.Id);
-            Console.WriteLine("         audienceName: " + audience.AudienceName);
-            Console.WriteLine("         description:  " + audience.Description);
-            Console.WriteLine("         name:        " + audience.Name);
-            Console.WriteLine("         Links:");
-            if (audience.Links != null)
-            {
-                foreach (Link link in audience.Links)
-                {
-                    DumpLink(link);
-                }
-            }
-        }
-
-        private static void DumpDownload(Download download)
-        {
-            foreach (Download.Item item in download.Items)
-            {
-                Console.WriteLine("               - url: " + item.Url);
-                Console.WriteLine("               - type:" + item.Type);
-            }
-            Console.WriteLine("               - messages: ");
-
-            if (download.Messages != null)
-            {
-                foreach (string msg in download.Messages)
-                {
-                    Console.WriteLine("                 " + msg);
-                }
-            }
-        }
-
-        private static void DumpLink(Link link)
-        {
-            Console.WriteLine("               - href:   " + link.Href);
-            Console.WriteLine("               - method: " + link.Method);
-            Console.WriteLine("               - rel:    " + link.Rel);
-        }
     }
 }
 

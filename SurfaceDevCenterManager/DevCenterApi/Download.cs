@@ -4,6 +4,7 @@
     Licensed under the MIT license.  See LICENSE file in the project root for full license information.  
 --*/
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace SurfaceDevCenterManager.DevCenterAPI
@@ -32,6 +33,24 @@ namespace SurfaceDevCenterManager.DevCenterAPI
             certificationReport,
             driverMetadata,
             derivedPackage
+        }
+
+        public void Dump()
+        {
+            foreach (Item item in Items)
+            {
+                Console.WriteLine("               - url: " + item.Url);
+                Console.WriteLine("               - type:" + item.Type);
+            }
+            Console.WriteLine("               - messages: ");
+
+            if (Messages != null)
+            {
+                foreach (string msg in Messages)
+                {
+                    Console.WriteLine("                 " + msg);
+                }
+            }
         }
     }
 }

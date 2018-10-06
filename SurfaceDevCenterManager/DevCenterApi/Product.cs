@@ -6,6 +6,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace SurfaceDevCenterManager.DevCenterAPI
 {
@@ -64,6 +65,61 @@ namespace SurfaceDevCenterManager.DevCenterAPI
 
         [JsonProperty("selectedProductTypes")]
         public Dictionary<string, string> SelectedProductTypes { get; set; }
+
+        public void Dump()
+        {
+            Console.WriteLine("---- Product: " + Id);
+            Console.WriteLine("         Name:      " + ProductName ?? "");
+            Console.WriteLine("         Shared Id: " + SharedProductId ?? "");
+            Console.WriteLine("         Type:      " + ProductType ?? "");
+            Console.WriteLine("         DevType:   " + DeviceType ?? "");
+            Console.WriteLine("         FWVer:     " + FirmwareVersion ?? "");
+            Console.WriteLine("         isTestSign:" + IsTestSign ?? "");
+            Console.WriteLine("         isFlightSign:" + IsFlightSign ?? "");
+            Console.WriteLine("         createdBy: " + CreatedBy ?? "");
+            Console.WriteLine("         updatedBy: " + UpdatedBy ?? "");
+            Console.WriteLine("         createdDateTime:" + CreatedDateTime.ToString("s", CultureInfo.CurrentCulture));
+            Console.WriteLine("         updatedDateTime:" + UpdatedDateTime.ToString("s", CultureInfo.CurrentCulture));
+            Console.WriteLine("         announcementDate:" + AnnouncementDate.ToString("s", CultureInfo.CurrentCulture));
+            Console.WriteLine("         testHarness:" + TestHarness ?? "");
+
+            Console.WriteLine("         Signatures: ");
+            foreach (string sig in RequestedSignatures)
+            {
+                Console.WriteLine("                   " + sig);
+            }
+
+            Console.WriteLine("         deviceMetadataIds: ");
+            if (DeviceMetadataIds != null)
+            {
+
+                foreach (string sig in DeviceMetadataIds)
+                {
+                    Console.WriteLine("                   " + sig);
+                }
+            }
+            Console.WriteLine("         selectedProductTypes: ");
+            if (SelectedProductTypes != null)
+            {
+                foreach (KeyValuePair<string, string> entry in SelectedProductTypes)
+                {
+                    Console.WriteLine("                   " + entry.Key + ":" + entry.Value);
+                }
+            }
+
+
+            Console.WriteLine("         marketingNames: ");
+            if (MarketingNames != null)
+            {
+                foreach (string sig in MarketingNames)
+                {
+                    Console.WriteLine("                   " + sig);
+                }
+            }
+
+            Console.WriteLine();
+        }
+
     }
 
     public class NewProduct

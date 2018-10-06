@@ -4,6 +4,7 @@
     Licensed under the MIT license.  See LICENSE file in the project root for full license information.  
 --*/
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace SurfaceDevCenterManager.DevCenterAPI
@@ -40,6 +41,37 @@ namespace SurfaceDevCenterManager.DevCenterAPI
 
         [JsonProperty("downloads")]
         public Download Downloads { get; set; }
+
+        public async void Dump()
+        {
+            Console.WriteLine("---- Submission: " + Id);
+            Console.WriteLine("         Name:        " + Name);
+            Console.WriteLine("         ProductId:   " + ProductId);
+            Console.WriteLine("         type:        " + Type ?? "");
+            Console.WriteLine("         commitStatus:" + CommitStatus ?? "");
+            Console.WriteLine("         CreatedBy:   " + CreatedBy ?? "");
+            Console.WriteLine("         CreateTime:  " + CreatedDateTime ?? "");
+            Console.WriteLine("         Links:");
+            if (Links != null)
+            {
+                foreach (Link link in Links)
+                {
+                    link.Dump();
+                }
+            }
+            Console.WriteLine("         Status:");
+            if (WorkflowStatus != null)
+            {
+                await WorkflowStatus.Dump();
+            }
+            Console.WriteLine("         Downloads:");
+            Console.WriteLine("               - messages: ");
+            if (Downloads != null)
+            {
+                Downloads.Dump();
+            }
+            Console.WriteLine();
+        }
     }
 
     public class NewSubmission

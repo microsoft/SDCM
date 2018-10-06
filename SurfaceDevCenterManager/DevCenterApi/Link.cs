@@ -4,6 +4,7 @@
     Licensed under the MIT license.  See LICENSE file in the project root for full license information.  
 --*/
 using Newtonsoft.Json;
+using System;
 
 namespace SurfaceDevCenterManager.DevCenterAPI
 {
@@ -17,5 +18,13 @@ namespace SurfaceDevCenterManager.DevCenterAPI
 
         [JsonProperty("method")]
         public string Method { get; set; }
+
+        public void Dump()
+        {
+            Console.WriteLine("               - href:   " + Href);
+            Console.WriteLine("               - method: " + Method);
+            Console.WriteLine("               - rel:    " + Rel);
+        }
     }
+
 }

@@ -4,6 +4,7 @@
     Licensed under the MIT license.  See LICENSE file in the project root for full license information.  
 --*/
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace SurfaceDevCenterManager.DevCenterAPI
@@ -24,6 +25,22 @@ namespace SurfaceDevCenterManager.DevCenterAPI
 
         [JsonProperty("links")]
         public List<Link> Links { get; set; }
+
+        public void Dump()
+        {
+            Console.WriteLine("---- Audience: " + Id);
+            Console.WriteLine("         audienceName: " + AudienceName);
+            Console.WriteLine("         description:  " + Description);
+            Console.WriteLine("         name:        " + Name);
+            Console.WriteLine("         Links:");
+            if (Links != null)
+            {
+                foreach (Link link in Links)
+                {
+                    link.Dump();
+                }
+            }
+        }
     }
 
 }
