@@ -101,10 +101,7 @@ Note that SDCM will auto-populate and publish all hardware IDs found in a Submis
 ## List the Product
 - Verify the product was created by listing the details.
 > sdcm.exe -list product -productid PID
-## List the Product
-- Verify the product was created by listing the details.
-> sdcm.exe -list product -productid PID
-##Create a Submission
+## Create a Submission
 - Create a json file 'Create_ProductName_Submission_HLK.json' using the Submission json example above
 > sdcm.exe -create Create_ProductName_Submission_HLK.json -productid PID
 - This will output a Submission ID (SID) if successful
@@ -114,7 +111,7 @@ Note that SDCM will auto-populate and publish all hardware IDs found in a Submis
 - List a specific submission for the product
 > sdcm.exe -list submission -productid PID -submissionid SID
 ## Upload a package to a Submission
-- Make sure the package (.cab or .hlkx) is signed by the EV Cert registered with your Hardware Dev Center Account
+- Make sure the package (.cab or .hlkx) is signed by the [Extended Validation Certificate (EV Cert)](https://docs.microsoft.com/en-us/windows-hardware/drivers/dashboard/get-a-code-signing-certificate) registered with your Hardware Dev Center Account
 > sdcm.exe -upload test.hlkx -productid PID -submissionid SID
 ## Commit a Submission
 - When everything is ready to start processing the submission, commit it
