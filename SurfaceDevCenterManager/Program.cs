@@ -108,7 +108,7 @@ namespace SurfaceDevCenterManager
                 { "a|audience",        "List Audiences", v => AudienceOption = true },
                 { "server=",           "Specify target DevCenter server from CredSelect enum", v => OverrideServer = int.Parse(v)   },
                 { "creds=",            "Option to specify app credentials.  Options: FileOnly, AADOnly, AADThenFile (Default)", v => CredentialsOption = v },
-                { "aad=",              "Option to specify AAD auth behavior.  Options: Never (Default), Prompt, Always", v => AADAuthenticationOption = v },
+                { "aad=",              "Option to specify AAD auth behavior.  Options: Never (Default), Prompt, Always, RefreshSession, SelectAccount", v => AADAuthenticationOption = v },
                 { "?",                 "Show this message and exit", v => show_help = v != null },
             };
 

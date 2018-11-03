@@ -81,7 +81,7 @@ namespace SurfaceDevCenterManager.Utility
 
             if (AADAuthenticationOption == null)
             {
-                AADAuthenticationOption = "Never";
+                AADAuthenticationOption = "never";
             }
             AADAuthenticationOption.ToLowerInvariant();
             PlatformParameters platformParams = new PlatformParameters(PromptBehavior.Never);
@@ -94,6 +94,14 @@ namespace SurfaceDevCenterManager.Utility
             {
                 platformParams = new PlatformParameters(PromptBehavior.Always);
             }
+            else if (AADAuthenticationOption.CompareTo("refreshsession") == 0)
+            {
+                platformParams = new PlatformParameters(PromptBehavior.RefreshSession);
+            }
+            else if (AADAuthenticationOption.CompareTo("selectaccount") == 0)
+            {
+                platformParams = new PlatformParameters(PromptBehavior.SelectAccount);
+            }
 
             AuthenticationResult authResult = null;
             bool retryAuth = false;
@@ -102,7 +110,7 @@ namespace SurfaceDevCenterManager.Utility
             {
                 authResult = await authContext.AcquireTokenAsync(resource, clientID, redirectUri, platformParams);
             }
-            catch (Microsoft.IdentityModel.Clients.ActiveDirectory.AdalException)
+            catch (AdalException)
             {
                 retryAuth = true;
                 authResult = null;
@@ -115,7 +123,7 @@ namespace SurfaceDevCenterManager.Utility
                 {
                     authResult = await authContext.AcquireTokenAsync(resource, clientID, redirectUri, new PlatformParameters(PromptBehavior.Auto));
                 }
-                catch (Microsoft.IdentityModel.Clients.ActiveDirectory.AdalException)
+                catch (AdalException)
                 {
                     authResult = null;
                 }
