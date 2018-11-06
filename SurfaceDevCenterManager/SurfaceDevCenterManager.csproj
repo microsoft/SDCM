@@ -62,24 +62,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DevCenterAPI\DevCenterErrorDetails.cs" />
-    <Compile Include="DevCenterAPI\DevCenterErrorReturn.cs" />
-    <Compile Include="DevCenterAPI\DevCenterResponse.cs" />
+    <Compile Include="DevCenterApi\DevCenterErrorDetails.cs" />
+    <Compile Include="DevCenterApi\DevCenterErrorReturn.cs" />
+    <Compile Include="DevCenterApi\DevCenterResponse.cs" />
     <Compile Include="ErrorCodes.cs" />
     <Compile Include="Utility\AuthorizationHandlerCredentials.cs" />
     <Compile Include="Utility\DevCenterCredentialsHandler.cs" />
     <Compile Include="Utility\BlobStorageHandler.cs" />
-    <Compile Include="DevCenterAPI\Download.cs" />
-    <Compile Include="DevCenterAPI\Link.cs" />
-    <Compile Include="DevCenterAPI\Response.cs" />
+    <Compile Include="DevCenterApi\Download.cs" />
+    <Compile Include="DevCenterApi\Link.cs" />
+    <Compile Include="DevCenterApi\Response.cs" />
     <Compile Include="Utility\AuthorizationHandler.cs" />
-    <Compile Include="DevCenterAPI\DevCenterHandler.cs" />
-    <Compile Include="DevCenterAPI\Audience.cs" />
-    <Compile Include="DevCenterAPI\Product.cs" />
-    <Compile Include="DevCenterAPI\DriverMetadata.cs" />
-    <Compile Include="DevCenterAPI\ShippingLabel.cs" />
-    <Compile Include="DevCenterAPI\Submission.cs" />
-    <Compile Include="DevCenterAPI\WorkflowStatus.cs" />
+    <Compile Include="DevCenterApi\DevCenterHandler.cs" />
+    <Compile Include="DevCenterApi\Audience.cs" />
+    <Compile Include="DevCenterApi\Product.cs" />
+    <Compile Include="DevCenterApi\DriverMetadata.cs" />
+    <Compile Include="DevCenterApi\ShippingLabel.cs" />
+    <Compile Include="DevCenterApi\Submission.cs" />
+    <Compile Include="DevCenterApi\WorkflowStatus.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
