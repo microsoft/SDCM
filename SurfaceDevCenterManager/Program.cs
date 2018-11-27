@@ -5,7 +5,7 @@
 --*/
 using Mono.Options;
 using Newtonsoft.Json;
-using SurfaceDevCenterManager.DevCenterAPI;
+using SurfaceDevCenterManager.DevCenterApi;
 using SurfaceDevCenterManager.Utility;
 using System;
 using System.Collections.Generic;
@@ -169,7 +169,7 @@ namespace SurfaceDevCenterManager
                 if (DevCenterHWSubmissionType.Product == createInput.CreateType)
                 {
                     DevCenterResponse<Product> ret = await api.NewProduct(createInput.CreateProduct);
-                    if (ret == null || ret.Error != null)
+                    if (ret.Error != null)
                     {
                         Console.WriteLine("ERROR");
                         Console.WriteLine(ret.Error.Code ?? "");
@@ -194,7 +194,7 @@ namespace SurfaceDevCenterManager
                     {
                         Console.WriteLine("> Creating Submission");
                         DevCenterResponse<Submission> ret = await api.NewSubmission(ProductId, createInput.CreateSubmission);
-                        if (ret == null || ret.Error != null)
+                        if (ret.Error != null)
                         {
                             Console.WriteLine("ERROR");
                             Console.WriteLine(ret.Error.Code ?? "");
@@ -227,7 +227,7 @@ namespace SurfaceDevCenterManager
                         string tmpfile = System.IO.Path.GetTempFileName();
 
                         DevCenterResponse<Submission> retSubmission = await api.GetSubmission(ProductId, SubmissionId);
-                        if (retSubmission == null || retSubmission.Error != null)
+                        if (retSubmission.Error != null)
                         {
                             Console.WriteLine("ERROR");
                             Console.WriteLine(retSubmission.Error.Code ?? "");
@@ -279,7 +279,7 @@ namespace SurfaceDevCenterManager
 
                         Console.WriteLine("> Creating Shipping Label");
                         DevCenterResponse<ShippingLabel> ret = await api.NewShippingLabel(ProductId, SubmissionId, createInput.CreateShippingLabel);
-                        if (ret == null || ret.Error != null)
+                        if (ret.Error != null)
                         {
                             Console.WriteLine("ERROR");
                             Console.WriteLine(ret.Error.Code ?? "");
@@ -336,7 +336,7 @@ namespace SurfaceDevCenterManager
                     case DevCenterHWSubmissionType.Product:
                         {
                             DevCenterResponse<Product> ret = await api.GetProducts(ProductId);
-                            if (ret == null || ret.Error != null)
+                            if (ret.Error != null)
                             {
                                 Console.WriteLine("ERROR");
                                 Console.WriteLine(ret.Error.Code ?? "");
@@ -345,7 +345,7 @@ namespace SurfaceDevCenterManager
                             }
                             else
                             {
-                                List<DevCenterAPI.Product> products = ret.ReturnValue;
+                                List<Product> products = ret.ReturnValue;
                                 foreach (Product product in products)
                                 {
                                     product.Dump();
@@ -356,7 +356,7 @@ namespace SurfaceDevCenterManager
                     case DevCenterHWSubmissionType.Submission:
                         {
                             DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
-                            if (ret == null || ret.Error != null)
+                            if (ret.Error != null)
                             {
                                 Console.WriteLine("ERROR");
                                 Console.WriteLine(ret.Error.Code ?? "");
@@ -365,7 +365,7 @@ namespace SurfaceDevCenterManager
                             }
                             else
                             {
-                                List<DevCenterAPI.Submission> submissions = ret.ReturnValue;
+                                List<Submission> submissions = ret.ReturnValue;
                                 foreach (Submission submission in submissions)
                                 {
                                     submission.Dump();
@@ -376,7 +376,7 @@ namespace SurfaceDevCenterManager
                     case DevCenterHWSubmissionType.ShippingLabel:
                         {
                             DevCenterResponse<ShippingLabel> ret = await api.GetShippingLabels(ProductId, SubmissionId, ShippingLabelId);
-                            if (ret == null || ret.Error != null)
+                            if (ret.Error != null)
                             {
                                 Console.WriteLine("ERROR");
                                 Console.WriteLine(ret.Error.Code ?? "");
@@ -434,7 +434,7 @@ namespace SurfaceDevCenterManager
                 {
                     Console.WriteLine("> Fetch Submission Info");
                     DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
-                    if (ret == null || ret.Error != null)
+                    if (ret.Error != null)
                     {
                         Console.WriteLine("ERROR");
                         Console.WriteLine(ret.Error.Code ?? "");
@@ -474,7 +474,7 @@ namespace SurfaceDevCenterManager
                 {
                     Console.WriteLine("> Fetch Submission Info");
                     DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
-                    if (ret == null || ret.Error != null)
+                    if (ret.Error != null)
                     {
                         Console.WriteLine("ERROR");
                         Console.WriteLine(ret.Error.Code ?? "");
@@ -521,7 +521,7 @@ namespace SurfaceDevCenterManager
                 {
                     Console.WriteLine("> Fetch Submission Info");
                     DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
-                    if (ret == null || ret.Error != null)
+                    if (ret.Error != null)
                     {
                         Console.WriteLine("ERROR");
                         Console.WriteLine(ret.Error.Code ?? "");
@@ -569,7 +569,7 @@ namespace SurfaceDevCenterManager
                         if (ShippingLabelId == null)
                         {
                             DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
-                            if (ret == null || ret.Error != null)
+                            if (ret.Error != null)
                             {
                                 Console.WriteLine("ERROR");
                                 Console.WriteLine(ret.Error.Code ?? "");
@@ -578,7 +578,7 @@ namespace SurfaceDevCenterManager
                                 retval = ErrorCodes.WAIT_GET_SUBMISSION_API_FAILED;
                                 break;
                             }
-                            List<DevCenterAPI.Submission> submissions = ret.ReturnValue;
+                            List<Submission> submissions = ret.ReturnValue;
                             Submission sub = submissions[0];
 
                             if (!done)
@@ -644,7 +644,7 @@ namespace SurfaceDevCenterManager
                         else
                         {
                             DevCenterResponse<ShippingLabel> ret = await api.GetShippingLabels(ProductId, SubmissionId, ShippingLabelId);
-                            if (ret == null || ret.Error != null)
+                            if (ret.Error != null)
                             {
                                 Console.WriteLine("ERROR");
                                 Console.WriteLine(ret.Error.Code ?? "");
@@ -688,7 +688,7 @@ namespace SurfaceDevCenterManager
                 Console.WriteLine("> Audience Option");
 
                 DevCenterResponse<Audience> ret = await api.GetAudiences();
-                if (ret == null || ret.Error != null)
+                if (ret.Error != null)
                 {
                     Console.WriteLine("ERROR");
                     Console.WriteLine(ret.Error.Code ?? "");

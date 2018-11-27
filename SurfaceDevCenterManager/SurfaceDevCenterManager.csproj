@@ -62,6 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DevCenterApi\IArtifact.cs" />
     <Compile Include="DevCenterApi\DevCenterErrorDetails.cs" />
     <Compile Include="DevCenterApi\DevCenterErrorReturn.cs" />
     <Compile Include="DevCenterApi\DevCenterResponse.cs" />
