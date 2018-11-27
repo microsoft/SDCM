@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 
-namespace SurfaceDevCenterManager.DevCenterAPI
+namespace SurfaceDevCenterManager.DevCenterApi
 {
-    public class Product
+    public class Product : IArtifact
     {
         [JsonProperty("id")]
         public string Id { get; set; }
@@ -157,5 +157,4 @@ namespace SurfaceDevCenterManager.DevCenterAPI
         [JsonProperty("testHarness")]
         public string TestHarness { get; set; }
     }
-
 }
