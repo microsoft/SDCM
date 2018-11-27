@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
-namespace SurfaceDevCenterManager.DevCenterAPI
+namespace SurfaceDevCenterManager.DevCenterApi
 {
     public class Download
     {

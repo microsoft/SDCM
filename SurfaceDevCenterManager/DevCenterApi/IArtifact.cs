@@ -3,13 +3,11 @@
 
     Licensed under the MIT license.  See LICENSE file in the project root for full license information.  
 --*/
-using System.Collections.Generic;
 
 namespace SurfaceDevCenterManager.DevCenterApi
 {
-    public class DevCenterResponse<T>
+    public interface IArtifact
     {
-        public DevCenterErrorDetails Error { get; set; }
-        public List<T> ReturnValue { get; set; }
+        string Id { get; set; }
     }
 }

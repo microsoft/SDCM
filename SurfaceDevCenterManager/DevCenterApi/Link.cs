@@ -6,7 +6,7 @@
 using Newtonsoft.Json;
 using System;
 
-namespace SurfaceDevCenterManager.DevCenterAPI
+namespace SurfaceDevCenterManager.DevCenterApi
 {
     public class Link
     {
