@@ -229,54 +229,23 @@ namespace SurfaceDevCenterManager.DevCenterApi
             return await HdcGet<Submission>(getProductSubmissionUrl, isMany);
         }
 
-        private const string DevCenterPartnerSubmissionUrl = "/hardware/products/relationships/sourcepubliherid/{0}/sourceproductid/{1}/sourcesubmissionid/{2}";
+        private const string DevCenterPartnerSubmissionUrl =
+            "/hardware/products/relationships/sourcepubliherid/{0}/sourceproductid/{1}/sourcesubmissionid/{2}";
+
         /// <summary>
         /// Gets shared submission info from a partner-shared Submission with partner ids
         /// </summary>
-        /// <param name="PublisherId">Specifiy the Partner's Publisher ID for this Submission</param>
-        /// <param name="ProductId">Specifiy the Partner's Product ID for this Submission</param>
-        /// <param name="SubmissionId">Specifiy the Partner's Submission ID for this Submission</param>
+        /// <param name="publisherId">Specifiy the Partner's Publisher ID for this Submission</param>
+        /// <param name="productId">Specifiy the Partner's Product ID for this Submission</param>
+        /// <param name="submissionId">Specifiy the Partner's Submission ID for this Submission</param>
         /// <returns>Dev Center response with either an error or a Submission if queried successfully with IDs for the querying account</returns>
-        public async Task<DevCenterResponse<Submission>> GetPartnerSubmission(string PublisherId, string ProductId, string SubmissionId)
+        public async Task<DevCenterResponse<Submission>> GetPartnerSubmission(
+            string publisherId, string productId, string submissionId)
         {
-            DevCenterResponse<Submission> retval = null;
-            string GetProductSubmissionUrl = GetDevCenterBaseUrl() + string.Format(DevCenterPartnerSubmissionUrl, Uri.EscapeDataString(PublisherId), Uri.EscapeDataString(ProductId), Uri.EscapeDataString(SubmissionId));
-
-            using (HttpClient client = new HttpClient(AuthHandler, false))
-            {
-                Uri restApi = new Uri(GetProductSubmissionUrl);
-
-                HttpResponseMessage infoResult = await client.GetAsync(restApi);
-
-                string content = await infoResult.Content.ReadAsStringAsync();
-
-                retval = new DevCenterResponse<Submission>();
-                if (infoResult.IsSuccessStatusCode)
-                {
-                    if (SubmissionId != null)
-                    {
-                        Submission ret = JsonConvert.DeserializeObject<Submission>(content);
-                        if (ret.Id != null)
-                        {
-                            retval.ReturnValue = new List<Submission>
-                            {
-                                ret
-                            };
-                        }
-                    }
-                    else
-                    {
-                        Response<Submission> ret = JsonConvert.DeserializeObject<Response<Submission>>(content);
-                        retval.ReturnValue = ret.Value;
-                    }
-                }
-                else
-                {
-                    retval.Error = DeserializeDevCenterError(content);
-                }
-            }
-
-            return retval;
+            string getProductSubmissionUrl = GetDevCenterBaseUrl() +
+                string.Format(DevCenterPartnerSubmissionUrl, Uri.EscapeDataString(publisherId),
+                Uri.EscapeDataString(productId), Uri.EscapeDataString(submissionId));
+            return await HdcGet<Submission>(getProductSubmissionUrl, String.IsNullOrEmpty(submissionId));
         }
 
         /// <summary>

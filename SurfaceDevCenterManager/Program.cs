@@ -399,7 +399,7 @@ namespace SurfaceDevCenterManager
                     case DevCenterHWSubmissionType.PartnerSubmission:
                         {
                             DevCenterResponse<Submission> ret = await api.GetPartnerSubmission(PublisherId, ProductId, SubmissionId);
-                            if (ret == null || ret.Error != null)
+                            if (ret.Error != null)
                             {
                                 Console.WriteLine("ERROR");
                                 Console.WriteLine(ret.Error.Code ?? "");
@@ -408,7 +408,7 @@ namespace SurfaceDevCenterManager
                             }
                             else
                             {
-                                List<DevCenterAPI.Submission> submissions = ret.ReturnValue;
+                                List<Submission> submissions = ret.ReturnValue;
                                 foreach (Submission submission in submissions)
                                 {
                                     submission.Dump();
