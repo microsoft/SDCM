@@ -5,7 +5,7 @@
 --*/
 using Newtonsoft.Json;
 
-namespace SurfaceDevCenterManager.DevCenterAPI
+namespace SurfaceDevCenterManager.DevCenterApi
 {
     public class DevCenterErrorDetails
     {

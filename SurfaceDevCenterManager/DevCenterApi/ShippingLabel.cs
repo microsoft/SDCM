@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
-namespace SurfaceDevCenterManager.DevCenterAPI
+namespace SurfaceDevCenterManager.DevCenterApi
 {
     public class AdditionalInfoForMsApproval
     {
@@ -113,7 +113,7 @@ namespace SurfaceDevCenterManager.DevCenterAPI
         public string Destination { get; set; }
     }
 
-    public class ShippingLabel
+    public class ShippingLabel : IArtifact
     {
         [JsonProperty("id")]
         public string Id { get; set; }
@@ -181,7 +181,5 @@ namespace SurfaceDevCenterManager.DevCenterAPI
             }
             Console.WriteLine();
         }
-
     }
-
 }

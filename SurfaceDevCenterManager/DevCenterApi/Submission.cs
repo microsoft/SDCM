@@ -7,10 +7,9 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
-namespace SurfaceDevCenterManager.DevCenterAPI
+namespace SurfaceDevCenterManager.DevCenterApi
 {
-
-    public class Submission
+    public class Submission : IArtifact
     {
         [JsonProperty("id")]
         public string Id { get; set; }
