@@ -21,6 +21,7 @@ namespace SurfaceDevCenterManager
         ShippingLabel = 0,
         Product = 1,
         Submission = 2,
+        PartnerSubmission = 3,
         Invalid
     };
 
@@ -81,6 +82,7 @@ namespace SurfaceDevCenterManager
             string ProductId = null;
             string SubmissionId = null;
             string ShippingLabelId = null;
+            string PublisherId = null;
             string DownloadOption = null;
             string MetadataOption = null;
             string SubmissionPackagePath = null;
@@ -94,11 +96,12 @@ namespace SurfaceDevCenterManager
             OptionSet p = new OptionSet() {
                 { "c|create=",         "Path to json file with configuration to create", v => CreateOption = v },
                 { "commit",            "Commit submission with given ID", v => CommitOption = true },
-                { "l|list=",           "List a shippinglabel, product or submission", v => ListOption = v },
+                { "l|list=",           "List a shippinglabel, product, submission or partnersubmission", v => ListOption = v },
                 { "u|upload=",         "Upload a package to a specific product and submission", v => SubmissionPackagePath = v },
                 { "productid=",        "Specify a specific ProductId", v => ProductId = v },
                 { "submissionid=",     "Specify a specific SubmissionId", v => SubmissionId = v },
                 { "shippinglabelid=",  "Specify a specific ShippingLabelId", v => ShippingLabelId = v },
+                { "publisherid=",      "Specify a specific PublisherId", v => PublisherId = v },
                 { "v",                 "Increase debug message verbosity", v => { if (v != null) {++verbosity; }} },
                 { "d|download=",       "Download a submission to current directory or folder specified", v => DownloadOption = v ?? Environment.CurrentDirectory },
                 { "m|metadata=",       "Download a submission metadata to current directory or folder specified", v => MetadataOption = v ?? Environment.CurrentDirectory },
@@ -157,7 +160,7 @@ namespace SurfaceDevCenterManager
             if (ListOption != null && ListOptionEnum == DevCenterHWSubmissionType.Invalid)
             {
                 ErrorParsingOptions("ListOption invalid - " + ListOption);
-                return ErrorCodes.NO_DEV_CENTER_CREDENTIALS_FOUND;
+                return ErrorCodes.LIST_INVALID_OPTION;
             }
 
             if (CreateOption != null)
@@ -361,7 +364,7 @@ namespace SurfaceDevCenterManager
                                 Console.WriteLine("ERROR");
                                 Console.WriteLine(ret.Error.Code ?? "");
                                 Console.WriteLine(ret.Error.Message ?? "");
-                                retval = ErrorCodes.LIST_GET_SUBMISSIOn_API_FAILED;
+                                retval = ErrorCodes.LIST_GET_SUBMISSION_API_FAILED;
                             }
                             else
                             {
@@ -389,6 +392,26 @@ namespace SurfaceDevCenterManager
                                 foreach (ShippingLabel shippingLabel in shippingLabels)
                                 {
                                     shippingLabel.Dump();
+                                }
+                            }
+                        }
+                        break;
+                    case DevCenterHWSubmissionType.PartnerSubmission:
+                        {
+                            DevCenterResponse<Submission> ret = await api.GetPartnerSubmission(PublisherId, ProductId, SubmissionId);
+                            if (ret == null || ret.Error != null)
+                            {
+                                Console.WriteLine("ERROR");
+                                Console.WriteLine(ret.Error.Code ?? "");
+                                Console.WriteLine(ret.Error.Message ?? "");
+                                retval = ErrorCodes.LIST_GET_PARTNER_SUBMISSION_API_FAILED;
+                            }
+                            else
+                            {
+                                List<DevCenterAPI.Submission> submissions = ret.ReturnValue;
+                                foreach (Submission submission in submissions)
+                                {
+                                    submission.Dump();
                                 }
                             }
                         }
