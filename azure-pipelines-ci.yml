@@ -11,6 +11,8 @@ variables:
   buildPlatform: 'AnyCPU'
   buildConfiguration: 'Release'
 
+name: 1.$(Date:yyyy).$(Date:MMdd).$(Rev:r)
+
 steps:
 - task: NuGetToolInstaller@0
 
@@ -23,6 +25,7 @@ steps:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    msbuildArgs: '/property:ApplicationVersion="$(Build.BuildNumber)'
 
 - task: PublishBuildArtifacts@1
   inputs:
