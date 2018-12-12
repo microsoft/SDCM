@@ -20,12 +20,19 @@ steps:
   inputs:
     restoreSolution: '$(solution)'
 
+- task: Powershell@2
+  displayName: Update Assembly Version
+  inputs:
+    targetType: filePath
+    filePath: 'build\Set-AssemblyInfo.ps1'
+    arguments: '-BuildVersion $(Build.BuildNumber) -AssemblyInfoFile SurfaceDevCenterManager\Properties\AssemblyInfo.cs'
+    workingDirectory: '.'
+
 - task: VSBuild@1
   inputs:
     solution: '$(solution)'
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
-    msbuildArgs: '/property:ApplicationVersion="$(Build.BuildNumber)"'
 
 - task: PublishBuildArtifacts@1
   inputs:
