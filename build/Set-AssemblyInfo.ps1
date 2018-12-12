@@ -47,7 +47,9 @@ Set-StrictMode -Version Latest
 "Open: $AssemblyInfoFile" | Write-Output
 $AssemblyInfo = gc $AssemblyInfoFile
 
+
 "Set Version: $BuildVersion" | Write-Output
+$BuildVersion = "`"$BuildVersion`""
 $NewAssemblyInfo = $AssemblyInfo -replace '\"1.0.0.0\"',$BuildVersion
 
 "Replace: $AssemblyInfoFile" | Write-Output
