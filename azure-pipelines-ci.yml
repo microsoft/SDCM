@@ -11,12 +11,22 @@ variables:
   buildPlatform: 'AnyCPU'
   buildConfiguration: 'Release'
 
+name: 1.$(Date:yyyy).$(Date:MMdd).$(Rev:r)
+
 steps:
 - task: NuGetToolInstaller@0
 
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
+
+- task: Powershell@2
+  displayName: Update Assembly Version
+  inputs:
+    targetType: filePath
+    filePath: 'build\Set-AssemblyInfo.ps1'
+    arguments: '-BuildVersion $(Build.BuildNumber) -AssemblyInfoFile SurfaceDevCenterManager\Properties\AssemblyInfo.cs'
+    workingDirectory: '.'
 
 - task: VSBuild@1
   inputs:
