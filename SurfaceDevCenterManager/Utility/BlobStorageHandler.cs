@@ -71,5 +71,14 @@ namespace SurfaceDevCenterManager.Utility
             Console.WriteLine();
             return true;
         }
+
+        /// <summary>
+        /// Downloads to specified file from HWDC Azure Storage as a string
+        /// </summary>
+        /// <returns>String representing the content from Azure Storage</returns>
+        public async Task<string> DownloadToString()
+        {
+            return await blob.DownloadTextAsync();
+        }
     }
 }

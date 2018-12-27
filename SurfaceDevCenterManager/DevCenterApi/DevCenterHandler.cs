@@ -121,7 +121,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
             HttpMethod method, string uri, object input, bool isMany) where Output : IArtifact
         {
             DevCenterResponse<Output> retval = new DevCenterResponse<Output>();
-            retval.Error = await InvokeHdcService(method, uri, input, (content) => 
+            retval.Error = await InvokeHdcService(method, uri, input, (content) =>
             {
                 if (isMany)
                 {
@@ -185,7 +185,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
         {
             string getProductsUrl = GetDevCenterBaseUrl() + DevCenterProductsUrl;
 
-            bool isMany = String.IsNullOrEmpty(productId);
+            bool isMany = string.IsNullOrEmpty(productId);
             if (!isMany)
             {
                 getProductsUrl += "/" + Uri.EscapeDataString(productId);
@@ -204,7 +204,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
         /// <returns>Dev Center response with either an error or a Submission if created successfully</returns>
         public async Task<DevCenterResponse<Submission>> NewSubmission(string productId, NewSubmission submissionInfo)
         {
-            string newProductSubmissionUrl = GetDevCenterBaseUrl() + 
+            string newProductSubmissionUrl = GetDevCenterBaseUrl() +
                 string.Format(DevCenterProductSubmissionUrl, Uri.EscapeDataString(productId));
             return await HdcPost<Submission>(newProductSubmissionUrl, submissionInfo);
         }
@@ -217,10 +217,10 @@ namespace SurfaceDevCenterManager.DevCenterApi
         /// <returns>Dev Center response with either an error or a Submission if queried successfully</returns>
         public async Task<DevCenterResponse<Submission>> GetSubmission(string productId, string submissionId = null)
         {
-            string getProductSubmissionUrl = GetDevCenterBaseUrl() + 
+            string getProductSubmissionUrl = GetDevCenterBaseUrl() +
                 string.Format(DevCenterProductSubmissionUrl, Uri.EscapeDataString(productId));
 
-            bool isMany = String.IsNullOrEmpty(submissionId);
+            bool isMany = string.IsNullOrEmpty(submissionId);
             if (!isMany)
             {
                 getProductSubmissionUrl += "/" + Uri.EscapeDataString(submissionId);
@@ -245,22 +245,31 @@ namespace SurfaceDevCenterManager.DevCenterApi
             string getProductSubmissionUrl = GetDevCenterBaseUrl() +
                 string.Format(DevCenterPartnerSubmissionUrl, Uri.EscapeDataString(publisherId),
                 Uri.EscapeDataString(productId), Uri.EscapeDataString(submissionId));
-            return await HdcGet<Submission>(getProductSubmissionUrl, String.IsNullOrEmpty(submissionId));
+            return await HdcGet<Submission>(getProductSubmissionUrl, string.IsNullOrEmpty(submissionId));
         }
 
+
+        private const string DevCenterProductSubmissionCommitUrl = "/hardware/products/{0}/submissions/{1}/commit";
         /// <summary>
         /// Commits a Submission in HWDC
         /// </summary>
         /// <param name="productId">Specifiy the Product ID for the Submission to commit</param>
         /// <param name="submissionId">Specifiy the Submission ID for the Submission to commit</param>
         /// <returns>Dev Center response with either an error or a true if comitted successfully</returns>
-        public async Task<bool> CommitSubmission(string productId, string submissionId)
+        public async Task<DevCenterResponse<bool>> CommitSubmission(string productId, string submissionId)
         {
             string commitProductSubmissionUrl = GetDevCenterBaseUrl() +
-                string.Format(DevCenterProductSubmissionUrl, Uri.EscapeDataString(productId)) +
-                "/" + Uri.EscapeDataString(submissionId) + "/commit";
+                string.Format(DevCenterProductSubmissionCommitUrl, Uri.EscapeDataString(productId), Uri.EscapeDataString(submissionId));
             DevCenterErrorDetails error = await InvokeHdcService(HttpMethod.Post, commitProductSubmissionUrl, null, null);
-            return error == null;
+            DevCenterResponse<bool> ret = new DevCenterResponse<bool>()
+            {
+                Error = error,
+                ReturnValue = new List<bool>()
+                {
+                    error == null
+                }
+            };
+            return ret;
         }
 
         private const string DevCenterShippingLabelUrl = "/hardware/products/{0}/submissions/{1}/shippingLabels";
@@ -293,7 +302,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
             string getShippingLabelUrl = GetDevCenterBaseUrl() +
                 string.Format(DevCenterShippingLabelUrl, Uri.EscapeDataString(productId), Uri.EscapeDataString(submissionId));
 
-            bool isMany = String.IsNullOrEmpty(shippingLabelId);
+            bool isMany = string.IsNullOrEmpty(shippingLabelId);
             if (!isMany)
             {
                 getShippingLabelUrl += "/" + Uri.EscapeDataString(shippingLabelId);
@@ -313,6 +322,29 @@ namespace SurfaceDevCenterManager.DevCenterApi
         {
             string getAudienceUrl = GetDevCenterBaseUrl() + DevCenterAudienceUrl;
             return await HdcGet<Audience>(getAudienceUrl, true);
+        }
+
+
+        private const string DevCenterCreateMetaDataUrl = "/hardware/products/{0}/submissions/{1}/createpublishermetadata";
+
+        /// <summary>
+        /// Requests creation of driver metadata on older submissions to HWDC
+        /// </summary>
+        /// <returns>Dev Center response with either an error or ok if metadata was created successfully</returns>
+        public async Task<DevCenterResponse<bool>> CreateMetaData(string productId, string submissionId)
+        {
+            string createMetaDataUrl = GetDevCenterBaseUrl() +
+                string.Format(DevCenterCreateMetaDataUrl, Uri.EscapeDataString(productId), Uri.EscapeDataString(submissionId));
+            DevCenterErrorDetails error = await InvokeHdcService(HttpMethod.Post, createMetaDataUrl, null, null);
+            DevCenterResponse<bool> ret = new DevCenterResponse<bool>()
+            {
+                Error = error,
+                ReturnValue = new List<bool>()
+                {
+                    error == null
+                }
+            };
+            return ret;
         }
 
         public void Dispose()

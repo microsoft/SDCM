@@ -40,13 +40,10 @@ namespace SurfaceDevCenterManager.DevCenterApi
             if (ErrorReport != null)
             {
                 Console.WriteLine("> Error Report:");
-                string tmpfile = System.IO.Path.GetTempFileName();
                 Utility.BlobStorageHandler bsh = new Utility.BlobStorageHandler(ErrorReport);
-                retval = await bsh.Download(tmpfile);
-
-                string errorContent = System.IO.File.ReadAllText(tmpfile);
+                string errorContent = await bsh.DownloadToString();
                 Console.WriteLine(errorContent);
-                System.IO.File.Delete(tmpfile);
+                Console.WriteLine();
             }
             return retval;
         }

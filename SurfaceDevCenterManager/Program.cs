@@ -9,7 +9,6 @@ using SurfaceDevCenterManager.DevCenterApi;
 using SurfaceDevCenterManager.Utility;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -88,6 +87,7 @@ namespace SurfaceDevCenterManager
             string SubmissionPackagePath = null;
             bool WaitOption = false;
             bool WaitForMetaData = false;
+            bool CreateMetaData = false;
             bool AudienceOption = false;
             int OverrideServer = 0;
             string CredentialsOption = null;
@@ -108,6 +108,7 @@ namespace SurfaceDevCenterManager
                 { "h|help",            "Show this message and exit", v => show_help = v != null },
                 { "w|wait",            "Wait for submission id to be done", v => WaitOption = true },
                 { "waitmetadata",      "Wait for metadata to be done as well in a submission", v => WaitForMetaData = true },
+                { "createmetadata",    "Requeset metadata creation for older submissions", v => CreateMetaData = true },
                 { "a|audience",        "List Audiences", v => AudienceOption = true },
                 { "server=",           "Specify target DevCenter server from CredSelect enum", v => OverrideServer = int.Parse(v)   },
                 { "creds=",            "Option to specify app credentials.  Options: FileOnly, AADOnly, AADThenFile (Default)", v => CredentialsOption = v },
@@ -174,9 +175,7 @@ namespace SurfaceDevCenterManager
                     DevCenterResponse<Product> ret = await api.NewProduct(createInput.CreateProduct);
                     if (ret.Error != null)
                     {
-                        Console.WriteLine("ERROR");
-                        Console.WriteLine(ret.Error.Code ?? "");
-                        Console.WriteLine(ret.Error.Message ?? "");
+                        DevCenterErrorDetailsDump(ret.Error);
                         retval = ErrorCodes.NEW_PRODUCT_API_FAILED;
                     }
                     else
@@ -199,9 +198,7 @@ namespace SurfaceDevCenterManager
                         DevCenterResponse<Submission> ret = await api.NewSubmission(ProductId, createInput.CreateSubmission);
                         if (ret.Error != null)
                         {
-                            Console.WriteLine("ERROR");
-                            Console.WriteLine(ret.Error.Code ?? "");
-                            Console.WriteLine(ret.Error.Message ?? "");
+                            DevCenterErrorDetailsDump(ret.Error);
                             retval = ErrorCodes.NEW_SUBMISSION_API_FAILED;
                         }
                         else
@@ -232,9 +229,7 @@ namespace SurfaceDevCenterManager
                         DevCenterResponse<Submission> retSubmission = await api.GetSubmission(ProductId, SubmissionId);
                         if (retSubmission.Error != null)
                         {
-                            Console.WriteLine("ERROR");
-                            Console.WriteLine(retSubmission.Error.Code ?? "");
-                            Console.WriteLine(retSubmission.Error.Message ?? "");
+                            DevCenterErrorDetailsDump(retSubmission.Error);
                             retval = ErrorCodes.NEW_SHIPPING_LABEL_GET_SUBMISSION_API_FAILED;
                         }
 
@@ -284,9 +279,7 @@ namespace SurfaceDevCenterManager
                         DevCenterResponse<ShippingLabel> ret = await api.NewShippingLabel(ProductId, SubmissionId, createInput.CreateShippingLabel);
                         if (ret.Error != null)
                         {
-                            Console.WriteLine("ERROR");
-                            Console.WriteLine(ret.Error.Code ?? "");
-                            Console.WriteLine(ret.Error.Message ?? "");
+                            DevCenterErrorDetailsDump(ret.Error);
                             retval = ErrorCodes.NEW_SHIPPING_LABEL_CREATE_API_FAILED;
                         }
                         else
@@ -319,14 +312,25 @@ namespace SurfaceDevCenterManager
                 if (retval == 0)
                 {
                     Console.WriteLine("> Sending Commit");
-                    if (await api.CommitSubmission(ProductId, SubmissionId))
+
+                    DevCenterResponse<bool> ret = await api.CommitSubmission(ProductId, SubmissionId);
+                    if (ret.Error != null)
                     {
-                        Console.WriteLine("> Commit OK");
+                        DevCenterErrorDetailsDump(ret.Error);
+                        retval = ErrorCodes.COMMIT_API_FAILED;
                     }
                     else
                     {
-                        Console.WriteLine("> Commit Failed");
-                        retval = ErrorCodes.COMMIT_API_FAILED;
+                        if (!ret.ReturnValue[0])
+                        {
+                            Console.WriteLine("> Commit Failed");
+                            retval = ErrorCodes.COMMIT_API_FAILED;
+                        }
+                        else
+                        {
+                            Console.WriteLine("> Commit OK");
+                        }
+
                     }
                 }
             }
@@ -341,9 +345,7 @@ namespace SurfaceDevCenterManager
                             DevCenterResponse<Product> ret = await api.GetProducts(ProductId);
                             if (ret.Error != null)
                             {
-                                Console.WriteLine("ERROR");
-                                Console.WriteLine(ret.Error.Code ?? "");
-                                Console.WriteLine(ret.Error.Message ?? "");
+                                DevCenterErrorDetailsDump(ret.Error);
                                 retval = ErrorCodes.LIST_GET_PRODUCTS_API_FAILED;
                             }
                             else
@@ -361,9 +363,7 @@ namespace SurfaceDevCenterManager
                             DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                             if (ret.Error != null)
                             {
-                                Console.WriteLine("ERROR");
-                                Console.WriteLine(ret.Error.Code ?? "");
-                                Console.WriteLine(ret.Error.Message ?? "");
+                                DevCenterErrorDetailsDump(ret.Error);
                                 retval = ErrorCodes.LIST_GET_SUBMISSION_API_FAILED;
                             }
                             else
@@ -381,9 +381,7 @@ namespace SurfaceDevCenterManager
                             DevCenterResponse<ShippingLabel> ret = await api.GetShippingLabels(ProductId, SubmissionId, ShippingLabelId);
                             if (ret.Error != null)
                             {
-                                Console.WriteLine("ERROR");
-                                Console.WriteLine(ret.Error.Code ?? "");
-                                Console.WriteLine(ret.Error.Message ?? "");
+                                DevCenterErrorDetailsDump(ret.Error);
                                 retval = ErrorCodes.LIST_GET_SHIPPING_LABEL_API_FAILED;
                             }
                             else
@@ -401,9 +399,7 @@ namespace SurfaceDevCenterManager
                             DevCenterResponse<Submission> ret = await api.GetPartnerSubmission(PublisherId, ProductId, SubmissionId);
                             if (ret.Error != null)
                             {
-                                Console.WriteLine("ERROR");
-                                Console.WriteLine(ret.Error.Code ?? "");
-                                Console.WriteLine(ret.Error.Message ?? "");
+                                DevCenterErrorDetailsDump(ret.Error);
                                 retval = ErrorCodes.LIST_GET_PARTNER_SUBMISSION_API_FAILED;
                             }
                             else
@@ -459,9 +455,7 @@ namespace SurfaceDevCenterManager
                     DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                     if (ret.Error != null)
                     {
-                        Console.WriteLine("ERROR");
-                        Console.WriteLine(ret.Error.Code ?? "");
-                        Console.WriteLine(ret.Error.Message ?? "");
+                        DevCenterErrorDetailsDump(ret.Error);
                         retval = ErrorCodes.DOWNLOAD_GET_SUBMISSION_API_FAILED;
                     }
                     List<Submission> submissions = ret.ReturnValue;
@@ -499,9 +493,7 @@ namespace SurfaceDevCenterManager
                     DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                     if (ret.Error != null)
                     {
-                        Console.WriteLine("ERROR");
-                        Console.WriteLine(ret.Error.Code ?? "");
-                        Console.WriteLine(ret.Error.Message ?? "");
+                        DevCenterErrorDetailsDump(ret.Error);
                         retval = ErrorCodes.METADATA_GET_SUBMISSION_API_FAILED;
                     }
                     List<Submission> submissions = ret.ReturnValue;
@@ -546,9 +538,7 @@ namespace SurfaceDevCenterManager
                     DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                     if (ret.Error != null)
                     {
-                        Console.WriteLine("ERROR");
-                        Console.WriteLine(ret.Error.Code ?? "");
-                        Console.WriteLine(ret.Error.Message ?? "");
+                        DevCenterErrorDetailsDump(ret.Error);
                         retval = ErrorCodes.UPLOAD_GET_SUBMISSION_API_FAILED;
                     }
                     List<Submission> submissions = ret.ReturnValue;
@@ -594,9 +584,7 @@ namespace SurfaceDevCenterManager
                             DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                             if (ret.Error != null)
                             {
-                                Console.WriteLine("ERROR");
-                                Console.WriteLine(ret.Error.Code ?? "");
-                                Console.WriteLine(ret.Error.Message ?? "");
+                                DevCenterErrorDetailsDump(ret.Error);
                                 done = true;
                                 retval = ErrorCodes.WAIT_GET_SUBMISSION_API_FAILED;
                                 break;
@@ -669,9 +657,7 @@ namespace SurfaceDevCenterManager
                             DevCenterResponse<ShippingLabel> ret = await api.GetShippingLabels(ProductId, SubmissionId, ShippingLabelId);
                             if (ret.Error != null)
                             {
-                                Console.WriteLine("ERROR");
-                                Console.WriteLine(ret.Error.Code ?? "");
-                                Console.WriteLine(ret.Error.Message ?? "");
+                                DevCenterErrorDetailsDump(ret.Error);
                                 done = true;
                                 retval = ErrorCodes.WAIT_GET_SHIPPING_LABEL_API_FAILED;
                                 break;
@@ -713,9 +699,7 @@ namespace SurfaceDevCenterManager
                 DevCenterResponse<Audience> ret = await api.GetAudiences();
                 if (ret.Error != null)
                 {
-                    Console.WriteLine("ERROR");
-                    Console.WriteLine(ret.Error.Code ?? "");
-                    Console.WriteLine(ret.Error.Message ?? "");
+                    DevCenterErrorDetailsDump(ret.Error);
                     retval = ErrorCodes.AUIDENCE_GET_AUDIENCE_API_FAILED;
                 }
                 else
@@ -728,7 +712,45 @@ namespace SurfaceDevCenterManager
                 }
 
             }
+            else if (CreateMetaData)
+            {
+                Console.WriteLine("> Create MetaData Option");
 
+                if (ProductId == null)
+                {
+                    Console.WriteLine("> ERROR: productid not specified");
+                    retval = ErrorCodes.CREATEMETADATA_PRODUCT_ID_MISSING;
+                }
+
+                if (SubmissionId == null)
+                {
+                    Console.WriteLine("> ERROR: submissionid not specified");
+                    retval = ErrorCodes.CREATEMETADATA_SUBMISSION_ID_MISSING;
+                }
+
+                if (retval == 0)
+                {
+                    Console.WriteLine("> Sending Create MetaData");
+                    DevCenterResponse<bool> ret = await api.CreateMetaData(ProductId, SubmissionId);
+                    if (ret.Error != null)
+                    {
+                        DevCenterErrorDetailsDump(ret.Error);
+                        retval = ErrorCodes.CREATEMETADATA_API_FAILED;
+                    }
+                    else
+                    {
+                        if (!ret.ReturnValue[0])
+                        {
+                            Console.WriteLine("> Create MetaData Failed");
+                            retval = ErrorCodes.CREATEMETADATA_API_FAILED;
+                        }
+                        else
+                        {
+                            Console.WriteLine("> Create MetaData OK");
+                        }
+                    }
+                }
+            }
             return retval;
         }
 
@@ -764,6 +786,22 @@ namespace SurfaceDevCenterManager
                 }
             }
             return retval;
+        }
+
+        private static void DevCenterErrorDetailsDump(DevCenterErrorDetails error)
+        {
+            Console.WriteLine("ERROR");
+            Console.WriteLine("Code:    " + (error.Code ?? ""));
+            Console.WriteLine("Message: " + (error.Message ?? ""));
+            if (error.ValidationErrors != null)
+            {
+                Console.WriteLine("ValidationErrors:");
+                foreach (DevCenterErrorValidationErrorEntry entry in error.ValidationErrors)
+                {
+                    Console.WriteLine("  Target: " + entry.Target);
+                    Console.WriteLine("  Message:" + entry.Message);
+                }
+            }
         }
 
     }
