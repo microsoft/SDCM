@@ -83,7 +83,7 @@ namespace SurfaceDevCenterManager.Utility
             {
                 AADAuthenticationOption = "never";
             }
-            AADAuthenticationOption.ToLowerInvariant();
+            AADAuthenticationOption = AADAuthenticationOption.ToLowerInvariant();
             PlatformParameters platformParams = new PlatformParameters(PromptBehavior.Never);
 
             if (AADAuthenticationOption.CompareTo("prompt") == 0)

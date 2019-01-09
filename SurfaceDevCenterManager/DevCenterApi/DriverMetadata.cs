@@ -30,7 +30,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
 
     public class DriverMetadataDetails
     {
-        public string Locales { get; set; }
+        public List<string> Locales { get; set; }
         public Dictionary<string, DriverMetadataInfDetails> InfInfoMap { get; set; }
     }
 
