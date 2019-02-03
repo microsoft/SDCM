@@ -62,7 +62,6 @@ namespace SurfaceDevCenterManager.DevCenterApi
 
     public class HardwareId
     {
-
         [JsonProperty("bundleId")]
         public string BundleId { get; set; }
 
@@ -78,12 +77,29 @@ namespace SurfaceDevCenterManager.DevCenterApi
 
     public class CHID
     {
-
         [JsonProperty("distributionState")]
         public string DistributionState { get; set; }
 
         [JsonProperty("chid")]
         public string Chid { get; set; }
+    }
+
+    public enum InServicePublishInfoOSEnum
+    {
+        TH,
+        RS1,
+        RS2,
+        RS3,
+        RS4,
+        RS5
+    }
+
+    public class InServicePublishInfo
+    {
+        [JsonProperty("flooring")]
+        public string Flooring { get; set; }
+        [JsonProperty("ceiling")]
+        public string Ceiling { get; set; }
     }
 
     public class Targeting
@@ -96,6 +112,9 @@ namespace SurfaceDevCenterManager.DevCenterApi
 
         [JsonProperty("restrictedToAudiences")]
         public List<string> RestrictedToAudiences { get; set; }
+
+        [JsonProperty("inServicePublishInfo")]
+        public InServicePublishInfo InServicePublishInfo { get; set; }
     }
 
     public class NewShippingLabel
