@@ -60,9 +60,12 @@ namespace SurfaceDevCenterManager.Utility
                 clonedRequest.Headers.Add("Authorization", "Bearer " + _AccessToken);
 
                 //Send request
-                try {
+                try
+                {
                     response = await base.SendAsync(clonedRequest, cancellationToken);
-                } catch (System.Net.Sockets.SocketException) {
+                }
+                catch (System.Net.Sockets.SocketException)
+                {
                     //HDC timed out, wait a bit and try again
                     Thread.Sleep(2000);
                     continue;
@@ -84,7 +87,8 @@ namespace SurfaceDevCenterManager.Utility
                 break;
             }
 
-            if (response == null) {
+            if (response == null)
+            {
                 throw new ApplicationException("AuthorizationHandler: NULL response, unable to talk to HDC");
             }
 
