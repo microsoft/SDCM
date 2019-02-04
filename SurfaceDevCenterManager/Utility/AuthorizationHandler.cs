@@ -1,7 +1,7 @@
 ﻿/*++
     Copyright (c) Microsoft Corporation. All rights reserved.
 
-    Licensed under the MIT license.  See LICENSE file in the project root for full license information.  
+    Licensed under the MIT license.  See LICENSE file in the project root for full license information.
 --*/
 using Newtonsoft.Json;
 using System;
@@ -19,6 +19,8 @@ namespace SurfaceDevCenterManager.Utility
         private string _AccessToken;
         private readonly AuthorizationHandlerCredentials AuthCredentials;
 
+        private const int MAX_RETRIES = 5;
+
         /// <summary>
         /// Handles OAuth Tokens for HTTP request to Microsoft Hardware Dev Center
         /// </summary>
@@ -31,53 +33,63 @@ namespace SurfaceDevCenterManager.Utility
         }
 
         /// <summary>
-        /// Inserts Bearer token into HTTP requests and also does a retry on failed requests since 
-        /// HWDC sometimes fails
+        /// Inserts Bearer token into HTTP requests and also does a retry on failed requests since
+        /// HDC sometimes fails
         /// </summary>
         /// <param name="request">HTTP Request to send</param>
         /// <param name="cancellationToken">CancellationToken in case the request is cancelled</param>
         /// <returns>Returns the HttpResonseMessage from the request</returns>
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            //Clone the original request so we have a copy in case of a failure
-            HttpRequestMessage clonedRequest = await CloneHttpRequestMessageAsync(request);
+            int tries = 0;
+            HttpResponseMessage response = null;
 
-            //If there is no valid access token for HWDC, get one and then add it to the request
+            //If there is no valid access token for HDC, get one and then add it to the request
             if (_AccessToken == null)
             {
                 await ObtainAccessToken();
             }
-            request.Headers.Add("Authorization", "Bearer " + _AccessToken);
 
-            //Send request
-            HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
-
-            //If unauthorized, the token likely expired so get a new one
-            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            while (tries < MAX_RETRIES)
             {
+                tries++;
+
+                //Clone the original request so we have a copy in case of a failure
+                HttpRequestMessage clonedRequest = await CloneHttpRequestMessageAsync(request);
+
+                clonedRequest.Headers.Add("Authorization", "Bearer " + _AccessToken);
+
+                //Send request
                 try
                 {
-                    //Get a new access token
-                    if (await ObtainAccessToken())
-                    {
-                        //Add token to cloned request and resend
-                        clonedRequest.Headers.Add("Authorization", "Bearer " + _AccessToken);
-                        response = await base.SendAsync(clonedRequest, cancellationToken);
-                    }
+                    response = await base.SendAsync(clonedRequest, cancellationToken);
                 }
-                catch (InvalidOperationException)
+                catch (System.Net.Sockets.SocketException)
                 {
-                    return response;
+                    //HDC timed out, wait a bit and try again
+                    Thread.Sleep(2000);
+                    continue;
                 }
-            }
-            else if (response.StatusCode == HttpStatusCode.InternalServerError)
-            {
-                //Somtimes HWDC returns 500 errors so wait a bit then retry once instead of failing the whole flow
-                Thread.Sleep(2000);
 
-                // Resend the request with the token
-                clonedRequest.Headers.Add("Authorization", "Bearer " + _AccessToken);
-                response = await base.SendAsync(clonedRequest, cancellationToken);
+                //If unauthorized, the token likely expired so get a new one and retry
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    await ObtainAccessToken();
+                    continue;
+                }
+                else if (response.StatusCode == HttpStatusCode.InternalServerError)
+                {
+                    //Somtimes HDC returns 500 errors so wait a bit then retry once instead of failing the whole flow
+                    Thread.Sleep(2000);
+                    continue;
+                }
+
+                break;
+            }
+
+            if (response == null)
+            {
+                throw new ApplicationException("AuthorizationHandler: NULL response, unable to talk to HDC");
             }
 
             return response;
