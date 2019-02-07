@@ -118,8 +118,6 @@ namespace SurfaceDevCenterManager
 
             Console.WriteLine("SurfaceDevCenterManager v" + Assembly.GetExecutingAssembly().GetName().Version);
 
-            throw new ArgumentOutOfRangeException();
-
             List<string> extra;
             try
             {
