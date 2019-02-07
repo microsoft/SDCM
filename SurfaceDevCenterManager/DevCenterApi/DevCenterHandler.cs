@@ -16,6 +16,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
     {
         private readonly DelegatingHandler AuthHandler;
         private readonly AuthorizationHandlerCredentials AuthCredentials;
+        private readonly TimeSpan HttpTimeout;
 
         /// <summary>
         /// Creates a new DevCenterHandler using the provided credentials
@@ -25,6 +26,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
         {
             AuthCredentials = credentials;
             AuthHandler = new AuthorizationHandler(AuthCredentials);
+            HttpTimeout = TimeSpan.FromSeconds(120);
         }
 
         private string GetDevCenterBaseUrl()
@@ -52,6 +54,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
         {
             using (HttpClient client = new HttpClient(AuthHandler, false))
             {
+                client.Timeout = HttpTimeout;
                 Uri restApi = new Uri(uri);
 
                 HttpResponseMessage infoResult = null;
