@@ -53,8 +53,8 @@ namespace SurfaceDevCenterManager
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.InnerException);
+                Console.WriteLine("Unhandled Exception:");
+                Console.WriteLine(e.ToString());
                 result = ErrorCodes.UNHANDLED_EXCEPTION;
             }
 

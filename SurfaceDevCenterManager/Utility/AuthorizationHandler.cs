@@ -9,17 +9,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SurfaceDevCenterManager.Utility
 {
+    internal class HttpRetriesExhaustedException : Exception
+    {
+        public HttpRetriesExhaustedException(string msg) : base(msg) { }
+    }
+
     internal class AuthorizationHandler : DelegatingHandler
     {
         private string _AccessToken;
         private readonly AuthorizationHandlerCredentials AuthCredentials;
 
-        private const int MAX_RETRIES = 5;
+        private const int MAX_RETRIES = 10;
 
         /// <summary>
         /// Handles OAuth Tokens for HTTP request to Microsoft Hardware Dev Center
@@ -64,11 +70,24 @@ namespace SurfaceDevCenterManager.Utility
                 {
                     response = await base.SendAsync(clonedRequest, cancellationToken);
                 }
-                catch (System.Net.Sockets.SocketException)
+                catch (SocketException)
                 {
                     //HDC timed out, wait a bit and try again
                     Thread.Sleep(2000);
                     continue;
+                }
+                catch (TaskCanceledException tcex)
+                {
+                    if (!tcex.CancellationToken.IsCancellationRequested)
+                    {
+                        //HDC time out, wait a bit and try again
+                        Thread.Sleep(2000);
+                        continue;
+                    }
+                    else
+                    {
+                        throw tcex;
+                    }
                 }
 
                 //If unauthorized, the token likely expired so get a new one and retry
@@ -89,7 +108,7 @@ namespace SurfaceDevCenterManager.Utility
 
             if (response == null)
             {
-                throw new ApplicationException("AuthorizationHandler: NULL response, unable to talk to HDC");
+                throw new HttpRetriesExhaustedException("AuthorizationHandler: NULL response, unable to talk to HDC");
             }
 
             return response;
@@ -102,6 +121,7 @@ namespace SurfaceDevCenterManager.Utility
 
             using (HttpClient client = new HttpClient())
             {
+                client.Timeout = TimeSpan.FromSeconds(120);
                 Uri restApi = new Uri(DevCenterTokenUrl);
 
                 StringContent postcontent = new StringContent("grant_type=client_credentials" +
@@ -168,7 +188,5 @@ namespace SurfaceDevCenterManager.Utility
 
             return clone;
         }
-
-
     }
 }

@@ -8,6 +8,7 @@ using SurfaceDevCenterManager.Utility;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SurfaceDevCenterManager.DevCenterApi
@@ -16,6 +17,8 @@ namespace SurfaceDevCenterManager.DevCenterApi
     {
         private readonly DelegatingHandler AuthHandler;
         private readonly AuthorizationHandlerCredentials AuthCredentials;
+        private readonly TimeSpan HttpTimeout;
+        private const int MAX_RETRIES = 10;
 
         /// <summary>
         /// Creates a new DevCenterHandler using the provided credentials
@@ -25,6 +28,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
         {
             AuthCredentials = credentials;
             AuthHandler = new AuthorizationHandler(AuthCredentials);
+            HttpTimeout = TimeSpan.FromSeconds(120);
         }
 
         private string GetDevCenterBaseUrl()
@@ -50,23 +54,13 @@ namespace SurfaceDevCenterManager.DevCenterApi
         public async Task<DevCenterErrorDetails> InvokeHdcService(
             HttpMethod method, string uri, object input, Action<string> processContent)
         {
+            int retries = 0;
             using (HttpClient client = new HttpClient(AuthHandler, false))
             {
+                client.Timeout = HttpTimeout;
                 Uri restApi = new Uri(uri);
 
-                HttpResponseMessage infoResult = null;
-                if (HttpMethod.Get == method)
-                {
-                    infoResult = await client.GetAsync(restApi);
-                }
-                else if (HttpMethod.Post == method)
-                {
-                    string json = JsonConvert.SerializeObject(input == null ? new object() : input);
-                    StringContent postContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-                    infoResult = await client.PostAsync(restApi, postContent);
-                }
-                else
-                {
+                if (!(HttpMethod.Get == method || HttpMethod.Post == method)) {
                     return new DevCenterErrorDetails
                     {
                         Code = DefaultErrorcode,
@@ -74,14 +68,46 @@ namespace SurfaceDevCenterManager.DevCenterApi
                     };
                 }
 
+                HttpResponseMessage infoResult = null;
+
+                while (retries < MAX_RETRIES)
+                {
+                    retries++;
+
+                    try
+                    {
+                        if (HttpMethod.Get == method)
+                        {
+                            infoResult = await client.GetAsync(restApi);
+                        }
+                        else if (HttpMethod.Post == method)
+                        {
+                            string json = JsonConvert.SerializeObject(input ?? new object());
+                            StringContent postContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+                            infoResult = await client.PostAsync(restApi, postContent);
+                        }
+                    }
+                    catch (TaskCanceledException tcex)
+                    {
+                        if (!tcex.CancellationToken.IsCancellationRequested)
+                        {
+                            //HDC time out, wait a bit and try again
+                            Thread.Sleep(2000);
+                            continue;
+                        }
+                        else
+                        {
+                            throw tcex;
+                        }
+                    }
+
+                    break;
+                }
+
                 string content = await infoResult.Content.ReadAsStringAsync();
                 if (infoResult.IsSuccessStatusCode)
                 {
-                    if (processContent != null)
-                    {
-                        processContent(content);
-                    }
-
+                    processContent?.Invoke(content);
                     return null;
                 }
 
