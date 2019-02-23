@@ -24,11 +24,11 @@ namespace SurfaceDevCenterManager.DevCenterApi
         /// Creates a new DevCenterHandler using the provided credentials
         /// </summary>
         /// <param name="credentials">Authorization credentials for HWDC</param>
-        public DevCenterHandler(AuthorizationHandlerCredentials credentials)
+        public DevCenterHandler(AuthorizationHandlerCredentials credentials, int HttpTimeoutSeconds)
         {
             AuthCredentials = credentials;
-            AuthHandler = new AuthorizationHandler(AuthCredentials);
-            HttpTimeout = TimeSpan.FromSeconds(120);
+            AuthHandler = new AuthorizationHandler(AuthCredentials, HttpTimeoutSeconds);
+            HttpTimeout = TimeSpan.FromSeconds(HttpTimeoutSeconds);
         }
 
         private string GetDevCenterBaseUrl()
@@ -60,7 +60,8 @@ namespace SurfaceDevCenterManager.DevCenterApi
                 client.Timeout = HttpTimeout;
                 Uri restApi = new Uri(uri);
 
-                if (!(HttpMethod.Get == method || HttpMethod.Post == method)) {
+                if (!(HttpMethod.Get == method || HttpMethod.Post == method))
+                {
                     return new DevCenterErrorDetails
                     {
                         Code = DefaultErrorcode,
@@ -111,7 +112,22 @@ namespace SurfaceDevCenterManager.DevCenterApi
                     return null;
                 }
 
-                DevCenterErrorReturn reterr = JsonConvert.DeserializeObject<DevCenterErrorReturn>(content);
+                DevCenterErrorReturn reterr = null;
+
+                try
+                {
+                    reterr = JsonConvert.DeserializeObject<DevCenterErrorReturn>(content);
+                }
+                catch (Newtonsoft.Json.JsonReaderException)
+                {
+                    // Error is in bad format, return raw
+                    reterr = new DevCenterErrorReturn()
+                    {
+                        StatusCode = infoResult.StatusCode.ToString(),
+                        Message = content
+                    };
+                }
+
                 // reterr can be null when there is HTTP error
                 if (reterr == null)
                 {
