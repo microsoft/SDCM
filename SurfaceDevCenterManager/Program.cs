@@ -42,7 +42,7 @@ namespace SurfaceDevCenterManager
     internal class Program
     {
         private static int verbosity;
-        private const int DEFAULT_TIMEOUT = 5 * 60;
+        private const uint DEFAULT_TIMEOUT = 5 * 60;
 
         private static int Main(string[] args)
         {
@@ -94,7 +94,7 @@ namespace SurfaceDevCenterManager
             string CredentialsOption = null;
             string AADAuthenticationOption = null;
             string TimeoutOption = null;
-            int HttpTimeout = DEFAULT_TIMEOUT;
+            uint HttpTimeout = DEFAULT_TIMEOUT;
 
             OptionSet p = new OptionSet() {
                 { "c|create=",         "Path to json file with configuration to create", v => CreateOption = v },
@@ -169,7 +169,7 @@ namespace SurfaceDevCenterManager
 
             if (TimeoutOption != null)
             {
-                if (int.TryParse(TimeoutOption, out int inputParse))
+                if (uint.TryParse(TimeoutOption, out uint inputParse))
                 {
                     HttpTimeout = inputParse;
                     Console.WriteLine($"> HttpTimeout: {HttpTimeout} seconds");
