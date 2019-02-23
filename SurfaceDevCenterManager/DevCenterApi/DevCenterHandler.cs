@@ -323,20 +323,23 @@ namespace SurfaceDevCenterManager.DevCenterApi
                 }
             };
 
-            if ((error.HttpErrorCode == (int)System.Net.HttpStatusCode.BadGateway) &&
-                (string.Compare(error.Code, "requestInvalidForCurrentState", true) == 0)
-                )
+            if (error != null)
             {
-                //  Communication issue likely caused the submission to already be done.  Check.
-                DevCenterResponse<Submission> SubmissionStatus = await GetSubmission(productId, submissionId);
-                if (SubmissionStatus.Error == null)
+                if ((error.HttpErrorCode == (int)System.Net.HttpStatusCode.BadGateway) &&
+                    (string.Compare(error.Code, "requestInvalidForCurrentState", true) == 0)
+                    )
                 {
-                    Submission s = SubmissionStatus.ReturnValue[0];
-                    if (string.Compare(s.CommitStatus, "commitComplete", true) == 0)
+                    //  Communication issue likely caused the submission to already be done.  Check.
+                    DevCenterResponse<Submission> SubmissionStatus = await GetSubmission(productId, submissionId);
+                    if (SubmissionStatus.Error == null)
                     {
-                        //Actually did commit
-                        ret.Error = null;
-                        ret.ReturnValue = new List<bool>() { true };
+                        Submission s = SubmissionStatus.ReturnValue[0];
+                        if (string.Compare(s.CommitStatus, "commitComplete", true) == 0)
+                        {
+                            //Actually did commit
+                            ret.Error = null;
+                            ret.ReturnValue = new List<bool>() { true };
+                        }
                     }
                 }
             }
