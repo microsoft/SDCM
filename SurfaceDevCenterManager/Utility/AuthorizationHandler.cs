@@ -32,12 +32,12 @@ namespace SurfaceDevCenterManager.Utility
         /// Handles OAuth Tokens for HTTP request to Microsoft Hardware Dev Center
         /// </summary>
         /// <param name="credentials">The set of credentials to use for the token acquitisiton</param>
-        public AuthorizationHandler(AuthorizationHandlerCredentials credentials, int HttpTimeoutSeconds)
+        public AuthorizationHandler(AuthorizationHandlerCredentials credentials, uint httpTimeoutSeconds)
         {
             _AccessToken = null;
             AuthCredentials = credentials;
             InnerHandler = new HttpClientHandler();
-            HttpTimeout = TimeSpan.FromSeconds(HttpTimeoutSeconds);
+            HttpTimeout = TimeSpan.FromSeconds(httpTimeoutSeconds);
         }
 
         /// <summary>

@@ -24,11 +24,11 @@ namespace SurfaceDevCenterManager.DevCenterApi
         /// Creates a new DevCenterHandler using the provided credentials
         /// </summary>
         /// <param name="credentials">Authorization credentials for HWDC</param>
-        public DevCenterHandler(AuthorizationHandlerCredentials credentials, int HttpTimeoutSeconds)
+        public DevCenterHandler(AuthorizationHandlerCredentials credentials, uint httpTimeoutSeconds)
         {
             AuthCredentials = credentials;
-            AuthHandler = new AuthorizationHandler(AuthCredentials, HttpTimeoutSeconds);
-            HttpTimeout = TimeSpan.FromSeconds(HttpTimeoutSeconds);
+            AuthHandler = new AuthorizationHandler(AuthCredentials, httpTimeoutSeconds);
+            HttpTimeout = TimeSpan.FromSeconds(httpTimeoutSeconds);
         }
 
         private string GetDevCenterBaseUrl()
