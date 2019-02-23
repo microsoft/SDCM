@@ -17,5 +17,8 @@ namespace SurfaceDevCenterManager.DevCenterApi
 
         [JsonProperty("message")]
         public string Message { get; set; }
+
+        [JsonProperty("httpErrorCode")]
+        public int HttpErrorCode { get; set; }
     }
 }
