@@ -24,11 +24,11 @@ namespace SurfaceDevCenterManager.DevCenterApi
         /// Creates a new DevCenterHandler using the provided credentials
         /// </summary>
         /// <param name="credentials">Authorization credentials for HWDC</param>
-        public DevCenterHandler(AuthorizationHandlerCredentials credentials)
+        public DevCenterHandler(AuthorizationHandlerCredentials credentials, uint httpTimeoutSeconds)
         {
             AuthCredentials = credentials;
-            AuthHandler = new AuthorizationHandler(AuthCredentials);
-            HttpTimeout = TimeSpan.FromSeconds(120);
+            AuthHandler = new AuthorizationHandler(AuthCredentials, httpTimeoutSeconds);
+            HttpTimeout = TimeSpan.FromSeconds(httpTimeoutSeconds);
         }
 
         private string GetDevCenterBaseUrl()
@@ -55,14 +55,18 @@ namespace SurfaceDevCenterManager.DevCenterApi
             HttpMethod method, string uri, object input, Action<string> processContent)
         {
             int retries = 0;
+            DevCenterErrorReturn reterr = null;
+
             using (HttpClient client = new HttpClient(AuthHandler, false))
             {
                 client.Timeout = HttpTimeout;
                 Uri restApi = new Uri(uri);
 
-                if (!(HttpMethod.Get == method || HttpMethod.Post == method)) {
+                if (!(HttpMethod.Get == method || HttpMethod.Post == method))
+                {
                     return new DevCenterErrorDetails
                     {
+                        HttpErrorCode = -1,
                         Code = DefaultErrorcode,
                         Message = "Unsupported HTTP method"
                     };
@@ -73,6 +77,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
                 while (retries < MAX_RETRIES)
                 {
                     retries++;
+                    reterr = null;
 
                     try
                     {
@@ -101,25 +106,46 @@ namespace SurfaceDevCenterManager.DevCenterApi
                         }
                     }
 
-                    break;
-                }
-
-                string content = await infoResult.Content.ReadAsStringAsync();
-                if (infoResult.IsSuccessStatusCode)
-                {
-                    processContent?.Invoke(content);
-                    return null;
-                }
-
-                DevCenterErrorReturn reterr = JsonConvert.DeserializeObject<DevCenterErrorReturn>(content);
-                // reterr can be null when there is HTTP error
-                if (reterr == null)
-                {
-                    return new DevCenterErrorDetails
+                    string content = await infoResult.Content.ReadAsStringAsync();
+                    if (infoResult.IsSuccessStatusCode)
                     {
-                        Code = infoResult.StatusCode.ToString("D"),
-                        Message = infoResult.ReasonPhrase
-                    };
+                        processContent?.Invoke(content);
+                        return null;
+                    }
+
+                    try
+                    {
+                        reterr = JsonConvert.DeserializeObject<DevCenterErrorReturn>(content);
+                    }
+                    catch (JsonReaderException)
+                    {
+                        // Error is in bad format, return raw
+                        reterr = new DevCenterErrorReturn()
+                        {
+                            HttpErrorCode = (int)infoResult.StatusCode,
+                            StatusCode = infoResult.StatusCode.ToString("D") + " " + infoResult.StatusCode.ToString(),
+                            Message = content
+                        };
+                    }
+
+                    // reterr can be null when there is HTTP error
+                    if (reterr == null)
+                    {
+                        reterr = new DevCenterErrorReturn()
+                        {
+                            HttpErrorCode = (int)infoResult.StatusCode,
+                            StatusCode = infoResult.StatusCode.ToString("D") + " " + infoResult.StatusCode.ToString(),
+                            Message = infoResult.ReasonPhrase
+                        };
+                    }
+
+                    // Retry on the following 'infrastructure' issues
+                    // 502 BadGateway
+                    if (infoResult.StatusCode != System.Net.HttpStatusCode.BadGateway)
+                    {
+                        break;
+                    }
+                    await Task.Delay(new Random().Next(1000, 10000));
                 }
 
                 if (reterr.Error != null)
@@ -129,6 +155,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
 
                 return new DevCenterErrorDetails
                 {
+                    HttpErrorCode = reterr.HttpErrorCode,
                     Code = reterr.StatusCode,
                     Message = reterr.Message
                 };
@@ -295,6 +322,28 @@ namespace SurfaceDevCenterManager.DevCenterApi
                     error == null
                 }
             };
+
+            if (error != null)
+            {
+                if ((error.HttpErrorCode == (int)System.Net.HttpStatusCode.BadGateway) &&
+                    (string.Compare(error.Code, "requestInvalidForCurrentState", true) == 0)
+                    )
+                {
+                    //  Communication issue likely caused the submission to already be done.  Check.
+                    DevCenterResponse<Submission> SubmissionStatus = await GetSubmission(productId, submissionId);
+                    if (SubmissionStatus.Error == null)
+                    {
+                        Submission s = SubmissionStatus.ReturnValue[0];
+                        if (string.Compare(s.CommitStatus, "commitComplete", true) == 0)
+                        {
+                            //Actually did commit
+                            ret.Error = null;
+                            ret.ReturnValue = new List<bool>() { true };
+                        }
+                    }
+                }
+            }
+
             return ret;
         }
 

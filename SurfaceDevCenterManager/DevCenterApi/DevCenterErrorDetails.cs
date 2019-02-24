@@ -18,6 +18,9 @@ namespace SurfaceDevCenterManager.DevCenterApi
 
         [JsonProperty("validationErrors")]
         public List<DevCenterErrorValidationErrorEntry> ValidationErrors;
+
+        [JsonProperty("httpErrorCode")]
+        public int HttpErrorCode { get; set; }
     }
 
     public class DevCenterErrorValidationErrorEntry

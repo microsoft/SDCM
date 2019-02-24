@@ -42,6 +42,7 @@ namespace SurfaceDevCenterManager
     internal class Program
     {
         private static int verbosity;
+        private const uint DEFAULT_TIMEOUT = 5 * 60;
 
         private static int Main(string[] args)
         {
@@ -92,6 +93,8 @@ namespace SurfaceDevCenterManager
             int OverrideServer = 0;
             string CredentialsOption = null;
             string AADAuthenticationOption = null;
+            string TimeoutOption = null;
+            uint HttpTimeout = DEFAULT_TIMEOUT;
 
             OptionSet p = new OptionSet() {
                 { "c|create=",         "Path to json file with configuration to create", v => CreateOption = v },
@@ -113,6 +116,7 @@ namespace SurfaceDevCenterManager
                 { "server=",           "Specify target DevCenter server from CredSelect enum", v => OverrideServer = int.Parse(v)   },
                 { "creds=",            "Option to specify app credentials.  Options: FileOnly, AADOnly, AADThenFile (Default)", v => CredentialsOption = v },
                 { "aad=",              "Option to specify AAD auth behavior.  Options: Never (Default), Prompt, Always, RefreshSession, SelectAccount", v => AADAuthenticationOption = v },
+                { "t|timeout=",        $"Adjust the timeout for HTTP requests to specified seconds.  Default:{DEFAULT_TIMEOUT} seconds", v => TimeoutOption = v  },
                 { "?",                 "Show this message and exit", v => show_help = v != null },
             };
 
@@ -149,7 +153,6 @@ namespace SurfaceDevCenterManager
                 ErrorParsingOptions("OverrideServer invalid - " + OverrideServer);
                 return ErrorCodes.OVERRIDE_SERVER_INVALID;
             }
-            DevCenterHandler api = new DevCenterHandler(myCreds[OverrideServer]);
 
             if (CreateOption != null && (!File.Exists(CreateOption)))
             {
@@ -163,6 +166,21 @@ namespace SurfaceDevCenterManager
                 ErrorParsingOptions("ListOption invalid - " + ListOption);
                 return ErrorCodes.LIST_INVALID_OPTION;
             }
+
+            if (TimeoutOption != null)
+            {
+                if (uint.TryParse(TimeoutOption, out uint inputParse))
+                {
+                    HttpTimeout = inputParse;
+                    Console.WriteLine($"> HttpTimeout: {HttpTimeout} seconds");
+                }
+                else
+                {
+                    Console.WriteLine($"> HttpTimeout: Invalid value {TimeoutOption}, using default timeout");
+                }
+            }
+
+            DevCenterHandler api = new DevCenterHandler(myCreds[OverrideServer], HttpTimeout);
 
             if (CreateOption != null)
             {
