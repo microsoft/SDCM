@@ -120,7 +120,7 @@ namespace SurfaceDevCenterManager
                 { "creds=",            "Option to specify app credentials.  Options: FileOnly, AADOnly, AADThenFile (Default)", v => CredentialsOption = v },
                 { "aad=",              "Option to specify AAD auth behavior.  Options: Never (Default), Prompt, Always, RefreshSession, SelectAccount", v => AADAuthenticationOption = v },
                 { "t|timeout=",        $"Adjust the timeout for HTTP requests to specified seconds.  Default:{DEFAULT_TIMEOUT} seconds", v => TimeoutOption = v  },
-                { "translate=",        "Translate the given publisherid, productid and submissionid from a partner to the values visible in your HDC account", v => TranslateOption = true},
+                { "translate",         "Translate the given publisherid, productid and submissionid from a partner to the values visible in your HDC account", v => TranslateOption = true},
                 { "?",                 "Show this message and exit", v => show_help = v != null },
             };
 
