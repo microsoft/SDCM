@@ -716,6 +716,11 @@ namespace SurfaceDevCenterManager
                                 done = true;
                                 Console.WriteLine("> Shipping Label Ready");
                             }
+                            else if (lastCurrentStep == "finalizeSharing" && lastState == "completed")
+                            {
+                                done = true;
+                                Console.WriteLine("> Shipping Label for Sharing Ready");
+                            }
                             else
                             {
                                 await Task.Delay(5000);
