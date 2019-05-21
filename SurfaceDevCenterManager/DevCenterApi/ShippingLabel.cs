@@ -91,7 +91,8 @@ namespace SurfaceDevCenterManager.DevCenterApi
         RS2,
         RS3,
         RS4,
-        RS5
+        RS5,
+        RS6
     }
 
     public class InServicePublishInfo
@@ -117,6 +118,14 @@ namespace SurfaceDevCenterManager.DevCenterApi
         public InServicePublishInfo InServicePublishInfo { get; set; }
     }
 
+    public class RecipientSpecifications
+    {
+        [JsonProperty("receiverPublisherId")]
+        public string ReceiverPublisherId { get; set; }
+        [JsonProperty("enforceChidTargeting")]
+        public bool EnforceChidTargeting { get; set; }
+    }
+
     public class NewShippingLabel
     {
         [JsonProperty("publishingSpecifications")]
@@ -124,6 +133,9 @@ namespace SurfaceDevCenterManager.DevCenterApi
 
         [JsonProperty("targeting")]
         public Targeting Targeting { get; set; }
+
+        [JsonProperty("recipientSpecifications")]
+        public RecipientSpecifications RecipientSpecifications { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -166,23 +178,26 @@ namespace SurfaceDevCenterManager.DevCenterApi
             Console.WriteLine("         SubmissionId:" + SubmissionId);
 
             Console.WriteLine("         Publishing Specifications:");
-            Console.WriteLine("           publishToWindows10s:" + PublishingSpecifications.PublishToWindows10S);
-            Console.WriteLine("           isDisclosureRestricted:" + PublishingSpecifications.IsDisclosureRestricted);
-            Console.WriteLine("           isAutoInstallOnApplicableSystems:" + PublishingSpecifications.IsAutoInstallOnApplicableSystems);
-            Console.WriteLine("           isAutoInstallDuringOSUpgrade:" + PublishingSpecifications.IsAutoInstallDuringOSUpgrade);
-            Console.WriteLine("           goLiveDate:" + PublishingSpecifications.GoLiveDate);
-            Console.WriteLine("           additionalInfoForMsApproval:");
-            Console.WriteLine("               businessJustification:" + PublishingSpecifications.AdditionalInfoForMsApproval.BusinessJustification);
-            Console.WriteLine("               hasUiSoftware:" + PublishingSpecifications.AdditionalInfoForMsApproval.HasUiSoftware);
-            Console.WriteLine("               isCoEngineered:" + PublishingSpecifications.AdditionalInfoForMsApproval.IsCoEngineered);
-            Console.WriteLine("               isForUnreleasedHardware:" + PublishingSpecifications.AdditionalInfoForMsApproval.IsForUnreleasedHardware);
-            Console.WriteLine("               isRebootRequired:" + PublishingSpecifications.AdditionalInfoForMsApproval.IsRebootRequired);
-            Console.WriteLine("               microsoftContact:" + PublishingSpecifications.AdditionalInfoForMsApproval.MicrosoftContact);
-            Console.WriteLine("               validationsPerformed:" + PublishingSpecifications.AdditionalInfoForMsApproval.ValidationsPerformed);
-            Console.WriteLine("               affectedOems:");
-            foreach (string oem in PublishingSpecifications.AdditionalInfoForMsApproval.AffectedOems)
+            if (PublishingSpecifications != null)
             {
-                Console.WriteLine("                            " + oem);
+                Console.WriteLine("           publishToWindows10s:" + PublishingSpecifications.PublishToWindows10S);
+                Console.WriteLine("           isDisclosureRestricted:" + PublishingSpecifications.IsDisclosureRestricted);
+                Console.WriteLine("           isAutoInstallOnApplicableSystems:" + PublishingSpecifications.IsAutoInstallOnApplicableSystems);
+                Console.WriteLine("           isAutoInstallDuringOSUpgrade:" + PublishingSpecifications.IsAutoInstallDuringOSUpgrade);
+                Console.WriteLine("           goLiveDate:" + PublishingSpecifications.GoLiveDate);
+                Console.WriteLine("           additionalInfoForMsApproval:");
+                Console.WriteLine("               businessJustification:" + PublishingSpecifications.AdditionalInfoForMsApproval.BusinessJustification);
+                Console.WriteLine("               hasUiSoftware:" + PublishingSpecifications.AdditionalInfoForMsApproval.HasUiSoftware);
+                Console.WriteLine("               isCoEngineered:" + PublishingSpecifications.AdditionalInfoForMsApproval.IsCoEngineered);
+                Console.WriteLine("               isForUnreleasedHardware:" + PublishingSpecifications.AdditionalInfoForMsApproval.IsForUnreleasedHardware);
+                Console.WriteLine("               isRebootRequired:" + PublishingSpecifications.AdditionalInfoForMsApproval.IsRebootRequired);
+                Console.WriteLine("               microsoftContact:" + PublishingSpecifications.AdditionalInfoForMsApproval.MicrosoftContact);
+                Console.WriteLine("               validationsPerformed:" + PublishingSpecifications.AdditionalInfoForMsApproval.ValidationsPerformed);
+                Console.WriteLine("               affectedOems:");
+                foreach (string oem in PublishingSpecifications.AdditionalInfoForMsApproval.AffectedOems)
+                {
+                    Console.WriteLine("                            " + oem);
+                }
             }
 
             Console.WriteLine("         Links:");

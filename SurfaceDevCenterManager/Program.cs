@@ -95,6 +95,8 @@ namespace SurfaceDevCenterManager
             string AADAuthenticationOption = null;
             string TimeoutOption = null;
             uint HttpTimeout = DEFAULT_TIMEOUT;
+            bool TranslateOption = false;
+            string AnotherPartnerId = null;
 
             OptionSet p = new OptionSet() {
                 { "c|create=",         "Path to json file with configuration to create", v => CreateOption = v },
@@ -105,6 +107,7 @@ namespace SurfaceDevCenterManager
                 { "submissionid=",     "Specify a specific SubmissionId", v => SubmissionId = v },
                 { "shippinglabelid=",  "Specify a specific ShippingLabelId", v => ShippingLabelId = v },
                 { "publisherid=",      "Specify a specific PublisherId", v => PublisherId = v },
+                { "partnerid=",        "Specify PublisherId of the Partner to share the submission to via shipping label instead of Windows Update", v => AnotherPartnerId = v },
                 { "v",                 "Increase debug message verbosity", v => { if (v != null) {++verbosity; }} },
                 { "d|download=",       "Download a submission to current directory or folder specified", v => DownloadOption = v ?? Environment.CurrentDirectory },
                 { "m|metadata=",       "Download a submission metadata to current directory or folder specified", v => MetadataOption = v ?? Environment.CurrentDirectory },
@@ -117,6 +120,7 @@ namespace SurfaceDevCenterManager
                 { "creds=",            "Option to specify app credentials.  Options: FileOnly, AADOnly, AADThenFile (Default)", v => CredentialsOption = v },
                 { "aad=",              "Option to specify AAD auth behavior.  Options: Never (Default), Prompt, Always, RefreshSession, SelectAccount", v => AADAuthenticationOption = v },
                 { "t|timeout=",        $"Adjust the timeout for HTTP requests to specified seconds.  Default:{DEFAULT_TIMEOUT} seconds", v => TimeoutOption = v  },
+                { "translate",         "Translate the given publisherid, productid and submissionid from a partner to the values visible in your HDC account", v => TranslateOption = true},
                 { "?",                 "Show this message and exit", v => show_help = v != null },
             };
 
@@ -282,7 +286,7 @@ namespace SurfaceDevCenterManager
                                             BundleId = bundleInfo.Key,
                                             InfId = infInfo.Key,
                                             OperatingSystemCode = osPnpInfo.Key,
-                                            PnpString = pnpInfo.Key
+                                            PnpString = pnpInfo.Key.ToLower()   // Recommendation from HDC team
                                         };
                                         labelHwids.Add(labelHwid);
                                     }
@@ -292,6 +296,17 @@ namespace SurfaceDevCenterManager
 
                         createInput.CreateShippingLabel.Targeting.HardwareIds = labelHwids;
                         createInput.CreateShippingLabel.PublishingSpecifications.GoLiveDate = DateTime.Now.AddDays(7);
+
+                        if (AnotherPartnerId != null)
+                        {
+                            Console.WriteLine("> Shipping to Partner (not Windows Update): " + AnotherPartnerId);
+                            createInput.CreateShippingLabel.Destination = "anotherPartner";
+                            createInput.CreateShippingLabel.RecipientSpecifications = new RecipientSpecifications()
+                            {
+                                EnforceChidTargeting = false,
+                                ReceiverPublisherId = AnotherPartnerId
+                            };
+                        }
 
                         Console.WriteLine("> Creating Shipping Label");
                         DevCenterResponse<ShippingLabel> ret = await api.NewShippingLabel(ProductId, SubmissionId, createInput.CreateShippingLabel);
@@ -701,6 +716,11 @@ namespace SurfaceDevCenterManager
                                 done = true;
                                 Console.WriteLine("> Shipping Label Ready");
                             }
+                            else if (lastCurrentStep == "finalizeSharing" && lastState == "completed")
+                            {
+                                done = true;
+                                Console.WriteLine("> Shipping Label for Sharing Ready");
+                            }
                             else
                             {
                                 await Task.Delay(5000);
@@ -765,6 +785,52 @@ namespace SurfaceDevCenterManager
                         else
                         {
                             Console.WriteLine("> Create MetaData OK");
+                        }
+                    }
+                }
+            }
+            else if (TranslateOption)
+            {
+                Console.WriteLine("> Translate Option");
+
+                if (PublisherId == null)
+                {
+                    Console.WriteLine("> ERROR: publisherid not specified");
+                    retval = ErrorCodes.TRANSLATE_PUBLISHER_ID_MISSING;
+                }
+
+                if (ProductId == null)
+                {
+                    Console.WriteLine("> ERROR: productid not specified");
+                    retval = ErrorCodes.TRANSLATE_PRODUCT_ID_MISSING;
+                }
+
+                if (SubmissionId == null)
+                {
+                    Console.WriteLine("> ERROR: submissionid not specified");
+                    retval = ErrorCodes.TRANSLATE_SUBMISSION_ID_MISSING;
+                }
+
+                if (retval == 0)
+                {
+                    Console.WriteLine("> Requesting Translation");
+                    DevCenterResponse<Submission> ret = await api.GetPartnerSubmission(PublisherId, ProductId, SubmissionId);
+                    if (ret.Error != null)
+                    {
+                        DevCenterErrorDetailsDump(ret.Error);
+                        retval = ErrorCodes.TRANSLATE_API_FAILED;
+                    }
+                    else
+                    {
+                        if (ret.ReturnValue.Count == 0)
+                        {
+                            Console.WriteLine("> Translate Failed");
+                            retval = ErrorCodes.TRANSLATE_API_FAILED;
+                        }
+                        else
+                        {
+                            Console.WriteLine("> Translate OK");
+                            ret.ReturnValue[0].Dump();
                         }
                     }
                 }

@@ -129,7 +129,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
                     }
 
                     // reterr can be null when there is HTTP error
-                    if (reterr == null)
+                    if (reterr == null || reterr.HttpErrorCode == 0)
                     {
                         reterr = new DevCenterErrorReturn()
                         {

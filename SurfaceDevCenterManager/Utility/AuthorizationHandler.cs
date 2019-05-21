@@ -155,7 +155,7 @@ namespace SurfaceDevCenterManager.Utility
         //
         // https://stackoverflow.com/questions/21467018/how-to-forward-an-httprequestmessage-to-another-server
         //
-        private static async Task<HttpRequestMessage> CloneHttpRequestMessageAsync(HttpRequestMessage request)
+        public static async Task<HttpRequestMessage> CloneHttpRequestMessageAsync(HttpRequestMessage request)
         {
             HttpRequestMessage clone = new HttpRequestMessage(request.Method, request.RequestUri);
 
