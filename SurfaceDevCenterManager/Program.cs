@@ -107,7 +107,7 @@ namespace SurfaceDevCenterManager
                 { "submissionid=",     "Specify a specific SubmissionId", v => SubmissionId = v },
                 { "shippinglabelid=",  "Specify a specific ShippingLabelId", v => ShippingLabelId = v },
                 { "publisherid=",      "Specify a specific PublisherId", v => PublisherId = v },
-                { "partnerid=",        "Specify PublisherId to send a shipping label instead of Windows Update", v => AnotherPartnerId = v },
+                { "partnerid=",        "Specify PublisherId of the Partner to share the submission to via shipping label instead of Windows Update", v => AnotherPartnerId = v },
                 { "v",                 "Increase debug message verbosity", v => { if (v != null) {++verbosity; }} },
                 { "d|download=",       "Download a submission to current directory or folder specified", v => DownloadOption = v ?? Environment.CurrentDirectory },
                 { "m|metadata=",       "Download a submission metadata to current directory or folder specified", v => MetadataOption = v ?? Environment.CurrentDirectory },
