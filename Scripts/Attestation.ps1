@@ -115,7 +115,7 @@ $json | ConvertTo-Json | Out-File -Encoding ASCII -FilePath "CreateSubmissionAtt
 Write-Output "    * Submit"
 $output = & $SCDM -create CreateSubmissionAttest.json -productid $SDCM_PID
 
-if (-not ([string]$output -match "---- Submission Created: (\d+)")) {
+if (-not ([string]$output -match "---- Submission: (\d+)")) {
     Write-Output "Did not find submission ID"
     Write-Output $output
     return -1
