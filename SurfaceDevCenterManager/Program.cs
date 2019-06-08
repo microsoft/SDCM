@@ -9,6 +9,7 @@ using SurfaceDevCenterManager.DevCenterApi;
 using SurfaceDevCenterManager.Utility;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -43,10 +44,14 @@ namespace SurfaceDevCenterManager
     {
         private static int verbosity;
         private const uint DEFAULT_TIMEOUT = 5 * 60;
+        private static Guid CorrelationId;
+        private static DevCenterErrorDetails LastCommand;
 
         private static int Main(string[] args)
         {
             ErrorCodes result = ErrorCodes.UNSPECIFIED;
+
+            CorrelationId = Guid.NewGuid();
 
             try
             {
@@ -56,9 +61,12 @@ namespace SurfaceDevCenterManager
             {
                 Console.WriteLine("Unhandled Exception:");
                 Console.WriteLine(e.ToString());
+                Console.WriteLine("Last Command:");
+                DevCenterErrorDetailsDump(LastCommand);
                 result = ErrorCodes.UNHANDLED_EXCEPTION;
             }
 
+            Console.WriteLine("Correlation Id: {0}", CorrelationId.ToString());
             Console.WriteLine("Return: {0} ({1})", (int)result, result.ToString());
             if (System.Diagnostics.Debugger.IsAttached)
             {
@@ -66,6 +74,11 @@ namespace SurfaceDevCenterManager
                 System.Diagnostics.Debugger.Break();
             }
             return (int)result;
+        }
+
+        public static void LastCommandSet(DevCenterErrorDetails error)
+        {
+            LastCommand = error;
         }
 
         /// <summary>
@@ -157,6 +170,16 @@ namespace SurfaceDevCenterManager
                 ErrorParsingOptions("OverrideServer invalid - " + OverrideServer);
                 return ErrorCodes.OVERRIDE_SERVER_INVALID;
             }
+            else
+            {
+                string loopServersString = ConfigurationManager.AppSettings["loopservers"];
+                if (loopServersString != null)
+                {
+                    string[] serversList = loopServersString.Split(',');
+                    int x = (new Random()).Next(0, serversList.Length);
+                    OverrideServer = int.Parse(serversList[x]);
+                }
+            }
 
             if (CreateOption != null && (!File.Exists(CreateOption)))
             {
@@ -184,7 +207,7 @@ namespace SurfaceDevCenterManager
                 }
             }
 
-            DevCenterHandler api = new DevCenterHandler(myCreds[OverrideServer], HttpTimeout);
+            DevCenterHandler api = new DevCenterHandler(myCreds[OverrideServer], HttpTimeout, CorrelationId, new DevCenterHandler.LastCommandDelegate(LastCommandSet));
 
             if (CreateOption != null)
             {
@@ -636,6 +659,7 @@ namespace SurfaceDevCenterManager
                                 }
 
                                 bool haveMetadata = false;
+                                bool haveSignedPackage = false;
                                 if (sub.Downloads != null)
                                 {
                                     List<Download.Item> dls = sub.Downloads.Items;
@@ -646,18 +670,20 @@ namespace SurfaceDevCenterManager
                                             Console.WriteLine("> driverMetadata Url: " + dl.Url);
                                             haveMetadata = true;
                                         }
+                                        if (dl.Type.ToLower() == Download.Type.signedPackage.ToString().ToLower())
+                                        {
+                                            Console.WriteLine("> signedPackage Url: " + dl.Url);
+                                            haveSignedPackage = true;
+                                        }
                                     }
                                 }
-
-                                bool atLastStep = (lastCurrentStep == "finalizeIngestion" || lastState == "completed");
-
 
                                 if (lastState == "failed")
                                 {
                                     done = true;
                                     retval = ErrorCodes.WAIT_SUBMISSION_FAILED_IN_HWDC;
                                 }
-                                else if (atLastStep)
+                                else if (haveSignedPackage)
                                 {
                                     if (WaitForMetaData)
                                     {
@@ -683,7 +709,6 @@ namespace SurfaceDevCenterManager
                             {
                                 Console.WriteLine("> Signed Package Ready");
                             }
-
                         }
                         else
                         {
@@ -874,8 +899,10 @@ namespace SurfaceDevCenterManager
 
         private static void DevCenterErrorDetailsDump(DevCenterErrorDetails error)
         {
-            Console.WriteLine("ERROR");
+            Console.WriteLine("ERROR (DevCenterErrorDetails)");
+            if (error == null) return;
             Console.WriteLine("Code:    " + (error.Code ?? ""));
+            Console.WriteLine("HttpCode:" + error.HttpErrorCode);
             Console.WriteLine("Message: " + (error.Message ?? ""));
             if (error.ValidationErrors != null)
             {
@@ -886,6 +913,12 @@ namespace SurfaceDevCenterManager
                     Console.WriteLine("  Message:" + entry.Message);
                 }
             }
+
+            Console.WriteLine("Correlation Id: {0}", CorrelationId.ToString());
+            Console.WriteLine("Request Id:     {0}", error.Trace.RequestId);
+            Console.WriteLine("Method:         {0}", error.Trace.Method);
+            Console.WriteLine("Url:            {0}", error.Trace.Url);
+            Console.WriteLine("Content:        {0}", error.Trace.Content);
         }
 
     }
