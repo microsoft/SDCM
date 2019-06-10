@@ -19,17 +19,23 @@ namespace SurfaceDevCenterManager.DevCenterApi
         private readonly AuthorizationHandlerCredentials AuthCredentials;
         private readonly TimeSpan HttpTimeout;
         private const int MAX_RETRIES = 10;
+        private Guid CorrelationId;
+        private readonly LastCommandDelegate LastCommand;
 
         /// <summary>
         /// Creates a new DevCenterHandler using the provided credentials
         /// </summary>
         /// <param name="credentials">Authorization credentials for HWDC</param>
-        public DevCenterHandler(AuthorizationHandlerCredentials credentials, uint httpTimeoutSeconds)
+        public DevCenterHandler(AuthorizationHandlerCredentials credentials, uint httpTimeoutSeconds, Guid correlationId, LastCommandDelegate lastCommand)
         {
             AuthCredentials = credentials;
             AuthHandler = new AuthorizationHandler(AuthCredentials, httpTimeoutSeconds);
             HttpTimeout = TimeSpan.FromSeconds(httpTimeoutSeconds);
+            CorrelationId = correlationId;
+            LastCommand = lastCommand;
         }
+
+        public delegate void LastCommandDelegate(DevCenterErrorDetails error);
 
         private string GetDevCenterBaseUrl()
         {
@@ -56,9 +62,25 @@ namespace SurfaceDevCenterManager.DevCenterApi
         {
             int retries = 0;
             DevCenterErrorReturn reterr = null;
+            string RequestId = Guid.NewGuid().ToString();
+            string json = JsonConvert.SerializeObject(input ?? new object());
 
             using (HttpClient client = new HttpClient(AuthHandler, false))
             {
+                client.DefaultRequestHeaders.Add("MS-CorrelationId", CorrelationId.ToString());
+                client.DefaultRequestHeaders.Add("MS-RequestId", RequestId);
+                DevCenterErrorTrace trace = new DevCenterErrorTrace()
+                {
+                    RequestId = RequestId,
+                    Method = method.ToString(),
+                    Url = uri,
+                    Content = json
+                };
+
+                LastCommand?.Invoke(new DevCenterErrorDetails()
+                {
+                    Trace = trace
+                });
                 client.Timeout = HttpTimeout;
                 Uri restApi = new Uri(uri);
 
@@ -68,7 +90,8 @@ namespace SurfaceDevCenterManager.DevCenterApi
                     {
                         HttpErrorCode = -1,
                         Code = DefaultErrorcode,
-                        Message = "Unsupported HTTP method"
+                        Message = "Unsupported HTTP method",
+                        Trace = trace
                     };
                 }
 
@@ -86,8 +109,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
                             infoResult = await client.GetAsync(restApi);
                         }
                         else if (HttpMethod.Post == method)
-                        {
-                            string json = JsonConvert.SerializeObject(input ?? new object());
+                        {                            
                             StringContent postContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
                             infoResult = await client.PostAsync(restApi, postContent);
                         }
@@ -150,6 +172,7 @@ namespace SurfaceDevCenterManager.DevCenterApi
 
                 if (reterr.Error != null)
                 {
+                    reterr.Error.Trace = trace;
                     return reterr.Error;
                 }
 
@@ -157,7 +180,8 @@ namespace SurfaceDevCenterManager.DevCenterApi
                 {
                     HttpErrorCode = reterr.HttpErrorCode,
                     Code = reterr.StatusCode,
-                    Message = reterr.Message
+                    Message = reterr.Message,
+                    Trace = trace
                 };
             }
         }
