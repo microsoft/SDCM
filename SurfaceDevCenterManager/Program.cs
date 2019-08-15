@@ -104,6 +104,7 @@ namespace SurfaceDevCenterManager
             bool CreateMetaData = false;
             bool AudienceOption = false;
             int OverrideServer = 0;
+            bool OverrideServerPresent = false;
             string CredentialsOption = null;
             string AADAuthenticationOption = null;
             string TimeoutOption = null;
@@ -129,7 +130,7 @@ namespace SurfaceDevCenterManager
                 { "waitmetadata",      "Wait for metadata to be done as well in a submission", v => WaitForMetaData = true },
                 { "createmetadata",    "Requeset metadata creation for older submissions", v => CreateMetaData = true },
                 { "a|audience",        "List Audiences", v => AudienceOption = true },
-                { "server=",           "Specify target DevCenter server from CredSelect enum", v => OverrideServer = int.Parse(v)   },
+                { "server=",           "Specify target DevCenter server from CredSelect enum", v => { OverrideServer = int.Parse(v); OverrideServerPresent = true; }    },
                 { "creds=",            "Option to specify app credentials.  Options: FileOnly, AADOnly, AADThenFile (Default)", v => CredentialsOption = v },
                 { "aad=",              "Option to specify AAD auth behavior.  Options: Never (Default), Prompt, Always, RefreshSession, SelectAccount", v => AADAuthenticationOption = v },
                 { "t|timeout=",        $"Adjust the timeout for HTTP requests to specified seconds.  Default:{DEFAULT_TIMEOUT} seconds", v => TimeoutOption = v  },
@@ -172,12 +173,15 @@ namespace SurfaceDevCenterManager
             }
             else
             {
-                string loopServersString = ConfigurationManager.AppSettings["loopservers"];
-                if (loopServersString != null)
+                if (!OverrideServerPresent)
                 {
-                    string[] serversList = loopServersString.Split(',');
-                    int x = (new Random()).Next(0, serversList.Length);
-                    OverrideServer = int.Parse(serversList[x]);
+                    string loopServersString = ConfigurationManager.AppSettings["loopservers"];
+                    if (loopServersString != null)
+                    {
+                        string[] serversList = loopServersString.Split(',');
+                        int x = (new Random()).Next(0, serversList.Length);
+                        OverrideServer = int.Parse(serversList[x]);
+                    }
                 }
             }
 
