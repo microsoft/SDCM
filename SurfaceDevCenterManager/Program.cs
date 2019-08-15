@@ -104,6 +104,7 @@ namespace SurfaceDevCenterManager
             bool CreateMetaData = false;
             bool AudienceOption = false;
             int OverrideServer = 0;
+            bool OverrideServerPresent = false;
             string CredentialsOption = null;
             string AADAuthenticationOption = null;
             string TimeoutOption = null;
@@ -129,7 +130,7 @@ namespace SurfaceDevCenterManager
                 { "waitmetadata",      "Wait for metadata to be done as well in a submission", v => WaitForMetaData = true },
                 { "createmetadata",    "Requeset metadata creation for older submissions", v => CreateMetaData = true },
                 { "a|audience",        "List Audiences", v => AudienceOption = true },
-                { "server=",           "Specify target DevCenter server from CredSelect enum", v => OverrideServer = int.Parse(v)   },
+                { "server=",           "Specify target DevCenter server from CredSelect enum", v => { OverrideServer = int.Parse(v); OverrideServerPresent = true; }    },
                 { "creds=",            "Option to specify app credentials.  Options: FileOnly, AADOnly, AADThenFile (Default)", v => CredentialsOption = v },
                 { "aad=",              "Option to specify AAD auth behavior.  Options: Never (Default), Prompt, Always, RefreshSession, SelectAccount", v => AADAuthenticationOption = v },
                 { "t|timeout=",        $"Adjust the timeout for HTTP requests to specified seconds.  Default:{DEFAULT_TIMEOUT} seconds", v => TimeoutOption = v  },
@@ -172,12 +173,15 @@ namespace SurfaceDevCenterManager
             }
             else
             {
-                string loopServersString = ConfigurationManager.AppSettings["loopservers"];
-                if (loopServersString != null)
+                if (!OverrideServerPresent)
                 {
-                    string[] serversList = loopServersString.Split(',');
-                    int x = (new Random()).Next(0, serversList.Length);
-                    OverrideServer = int.Parse(serversList[x]);
+                    string loopServersString = ConfigurationManager.AppSettings["loopservers"];
+                    if (loopServersString != null)
+                    {
+                        string[] serversList = loopServersString.Split(',');
+                        int x = (new Random()).Next(0, serversList.Length);
+                        OverrideServer = int.Parse(serversList[x]);
+                    }
                 }
             }
 
@@ -208,6 +212,10 @@ namespace SurfaceDevCenterManager
             }
 
             DevCenterHandler api = new DevCenterHandler(myCreds[OverrideServer], HttpTimeout, CorrelationId, new DevCenterHandler.LastCommandDelegate(LastCommandSet));
+
+            DriverMetadata m = JsonConvert.DeserializeObject<DriverMetadata>("{"BundleInfoMap":{"db3467c2 - 761d - 4d44 - 8821 - 554feda8f662":{"Locales":["Arabic","Arabic Lebanon","Arabic Saudi Arabia","Basque","Brazilian","Bulgarian","Catalan","Chinese - HongKong","Chinese - Simplified","Chinese - Traditional","Croatian","Czech","Danish","Dutch","English","English - Euro","Estonian","Finnish","French","French / Canadian","German","Greek","Hebrew","Hindi","Hungarian","Italian","Japanese","Korean","Latvian","Lithuanian","Norwegian","Polish","Portuguese","Portuguese - Brazil","Portuguese - Portugal","Romanian","Russian","Serbian","Slovak","Slovenian","Spanish","Swedish","Thai","Turkish","Ukrainian"],"InfInfoMap":{"RealtekExt.inf":{"DriverPackageFamilyId":"Realtek_Semiconductor_Corp.- RealtekExt.inf","InfClass":"Extension","DriverVersion":"6.0.8770.1","DriverDate":"2019 - 08 - 02T00: 00:00","ExtensionId":"c3a63edd - 2d27 - 4b66 - b155 - 5e94b43d926a","Provider":"Realtek Semiconductor Corp.","ClassGuid":"{ e2f84ce7 - 8efa - 411c - aa69 - 97454ca4cb57}
+            ","InstallationComputerHardwareIds":[],"OSPnPInfoMap":{"WINDOWS_v100_X64_19H1_FULL":{"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC1072":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC108A":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC108C":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC10AE":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC10C4":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC10CA":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC10CC":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC1104":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC1106":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC1146":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC1160":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC1170":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC118A":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11B0":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11B2":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"HDAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11B0":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"HDAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11B2":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"HDAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11C4":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"HDAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11C6":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"HDAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11CE":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11D2":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11E6":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11E8":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC11EA":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"HDAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11D2":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"HDAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11E6":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"HDAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11E8":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"HDAUDIO\\FUNC_01 & VEN_10EC & DEV_0298 & SUBSYS_10EC11EA":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11F0":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"HDAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11F0":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"INTELAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11F2":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false},"HDAUDIO\\FUNC_01 & VEN_10EC & DEV_0274 & SUBSYS_10EC11F2":{"Manufacturer":"Realtek","DeviceDescription":"Realtek Device Extension","FeatureScore":"FF","RebootRequired":false}}}}}}}}");
+
 
             if (CreateOption != null)
             {
