@@ -10,12 +10,80 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SurfaceDevCenterManager.Utility
 {
     internal class DevCenterCredentialsHandler
     {
+        private static readonly byte[] s_aditionalEntropy = { 254, 122, 123, 135, 23, 79, 6 };
+
+        private static string GetCredential()
+        {
+            byte[] data = null;
+            byte[] encryptData = null;
+            string retval = null;
+
+            if (System.IO.File.Exists(GetSdcmBinPath()))
+            {
+
+                encryptData = System.IO.File.ReadAllBytes(GetSdcmBinPath());
+
+                if (encryptData != null)
+                {
+                    try
+                    {
+                        data = ProtectedData.Unprotect(encryptData, s_aditionalEntropy, DataProtectionScope.CurrentUser);
+                        retval = Encoding.Unicode.GetString(data);
+                    }
+                    catch (CryptographicException)
+                    {
+                        data = null;
+                    }
+                }
+            }
+
+            return retval;
+        }
+
+        private static bool SetCredential(string token)
+        {
+            byte[] data = Encoding.Unicode.GetBytes(token);
+            byte[] encryptData = null;
+            bool retval = false;
+            try
+            {
+                encryptData = ProtectedData.Protect(data, s_aditionalEntropy, DataProtectionScope.CurrentUser);
+            }
+            catch (CryptographicException)
+            {
+                encryptData = null;
+            }
+
+            if (encryptData != null)
+            {
+
+                System.IO.File.WriteAllBytes(GetSdcmBinPath(), encryptData);
+                retval = true;
+            }
+
+            return retval;
+        }
+
+        private static string GetSdcmBinPath()
+        {
+            string tmpPath = System.IO.Path.GetTempPath();
+            return tmpPath + "sdcm.bin";
+        }
+
+        private static bool DeleteCredential()
+        {
+            System.IO.File.Delete(GetSdcmBinPath());
+            return true;
+        }
+
         public static async Task<List<AuthorizationHandlerCredentials>> GetApiCreds(string CredentialsOption, string AADAuthenticationOption)
         {
             List<AuthorizationHandlerCredentials> myCreds = null;
@@ -106,47 +174,76 @@ namespace SurfaceDevCenterManager.Utility
             AuthenticationResult authResult = null;
             bool retryAuth = false;
 
-            try
+            string AccessTokenType = null, AccessToken = null;
+            Uri restApi = new Uri(WebAPIUri, "/api/credentials");
+
+            AccessToken = GetCredential();
+            if (AccessToken != null)
             {
-                authResult = await authContext.AcquireTokenAsync(resource, clientID, redirectUri, platformParams);
-            }
-            catch (AdalException)
-            {
-                retryAuth = true;
-                authResult = null;
+                ReturnList = await FetchList(restApi, AccessToken);
             }
 
-            if (retryAuth)
+            if (ReturnList == null)
             {
-
+                DeleteCredential();
                 try
                 {
-                    authResult = await authContext.AcquireTokenAsync(resource, clientID, redirectUri, new PlatformParameters(PromptBehavior.Auto));
+                    authResult = await authContext.AcquireTokenAsync(resource, clientID, redirectUri, platformParams);
+                    AccessTokenType = authResult.AccessTokenType;
+                    AccessToken = authResult.AccessToken;
                 }
                 catch (AdalException)
                 {
+                    retryAuth = true;
                     authResult = null;
+                    AccessTokenType = null;
+                    AccessToken = null;
                 }
-            }
 
-            Uri restApi = new Uri(WebAPIUri, "/api/credentials");
-
-            if (authResult != null)
-            {
-                using (HttpClient client = new HttpClient())
+                if (retryAuth)
                 {
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(authResult.AccessTokenType, authResult.AccessToken);
-
-                    HttpResponseMessage infoResult = await client.GetAsync(restApi);
-
-                    string content = await infoResult.Content.ReadAsStringAsync();
-
-                    if (infoResult.IsSuccessStatusCode)
+                    try
                     {
-                        ReturnList = JsonConvert.DeserializeObject<List<AuthorizationHandlerCredentials>>(content);
+                        authResult = await authContext.AcquireTokenAsync(resource, clientID, redirectUri, new PlatformParameters(PromptBehavior.Auto));
+                        AccessTokenType = authResult.AccessTokenType;
+                        AccessToken = authResult.AccessToken;
+                    }
+                    catch (AdalException)
+                    {
+                        authResult = null;
+                        AccessTokenType = null;
+                        AccessToken = null;
                     }
                 }
+
+                if (AccessToken != null)
+                {
+                    SetCredential(AccessToken);
+                    ReturnList = await FetchList(restApi, AccessToken);
+                }
             }
+
+            return ReturnList;
+        }
+
+        private static async Task<List<AuthorizationHandlerCredentials>> FetchList(Uri restApi, string AccessToken)
+        {
+            List<AuthorizationHandlerCredentials> ReturnList = null;
+
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
+
+                HttpResponseMessage infoResult = await client.GetAsync(restApi);
+
+                string content = await infoResult.Content.ReadAsStringAsync();
+
+                if (infoResult.IsSuccessStatusCode)
+                {
+                    ReturnList = JsonConvert.DeserializeObject<List<AuthorizationHandlerCredentials>>(content);
+                }
+            }
+
             return ReturnList;
         }
     }
