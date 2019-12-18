@@ -3,9 +3,11 @@
 
     Licensed under the MIT license.  See LICENSE file in the project root for full license information.  
 --*/
+using Microsoft.Devices.HardwareDevCenterManager;
+using Microsoft.Devices.HardwareDevCenterManager.DevCenterApi;
+using Microsoft.Devices.HardwareDevCenterManager.Utility;
 using Mono.Options;
 using Newtonsoft.Json;
-using SurfaceDevCenterManager.DevCenterApi;
 using SurfaceDevCenterManager.Utility;
 using System;
 using System.Collections.Generic;
@@ -211,7 +213,8 @@ namespace SurfaceDevCenterManager
                 }
             }
 
-            DevCenterHandler api = new DevCenterHandler(myCreds[OverrideServer], HttpTimeout, CorrelationId, new DevCenterHandler.LastCommandDelegate(LastCommandSet));
+            DevCenterOptions options = new DevCenterOptions() { CorrelationId = CorrelationId, HttpTimeoutSeconds = HttpTimeout, RequestDelayMs = 250, LastCommand = LastCommandSet };
+            DevCenterHandler api = new DevCenterHandler(myCreds[OverrideServer], options);
 
             if (CreateOption != null)
             {
@@ -289,7 +292,7 @@ namespace SurfaceDevCenterManager
                             if (dl.Type.ToLower() == Download.Type.driverMetadata.ToString().ToLower())
                             {
                                 Console.WriteLine("> driverMetadata Url: " + dl.Url);
-                                Utility.BlobStorageHandler bsh = new Utility.BlobStorageHandler(dl.Url.AbsoluteUri);
+                                BlobStorageHandler bsh = new BlobStorageHandler(dl.Url.AbsoluteUri);
                                 await bsh.Download(tmpfile);
                             }
                         }
@@ -525,7 +528,7 @@ namespace SurfaceDevCenterManager
                         if (dl.Type.ToLower() == Download.Type.signedPackage.ToString().ToLower())
                         {
                             Console.WriteLine("> signedPackage Url: " + dl.Url);
-                            Utility.BlobStorageHandler bsh = new Utility.BlobStorageHandler(dl.Url.AbsoluteUri);
+                            BlobStorageHandler bsh = new BlobStorageHandler(dl.Url.AbsoluteUri);
                             await bsh.Download(DownloadOption);
                         }
                     }
@@ -564,7 +567,7 @@ namespace SurfaceDevCenterManager
                         if (dl.Type.ToLower() == Download.Type.driverMetadata.ToString().ToLower())
                         {
                             Console.WriteLine("> driverMetadata Url: " + dl.Url);
-                            Utility.BlobStorageHandler bsh = new Utility.BlobStorageHandler(dl.Url.AbsoluteUri);
+                            BlobStorageHandler bsh = new BlobStorageHandler(dl.Url.AbsoluteUri);
                             await bsh.Download(MetadataOption);
                             foundMetaData = true;
                         }
@@ -609,7 +612,7 @@ namespace SurfaceDevCenterManager
                         {
                             Console.WriteLine("> initialPackage Url: " + dl.Url);
                             Console.WriteLine("> Uploading Submission Package");
-                            Utility.BlobStorageHandler bsh = new Utility.BlobStorageHandler(dl.Url.AbsoluteUri);
+                            BlobStorageHandler bsh = new BlobStorageHandler(dl.Url.AbsoluteUri);
                             await bsh.Upload(SubmissionPackagePath);
                         }
                     }
@@ -919,10 +922,13 @@ namespace SurfaceDevCenterManager
             }
 
             Console.WriteLine("Correlation Id: {0}", CorrelationId.ToString());
-            Console.WriteLine("Request Id:     {0}", error.Trace.RequestId);
-            Console.WriteLine("Method:         {0}", error.Trace.Method);
-            Console.WriteLine("Url:            {0}", error.Trace.Url);
-            Console.WriteLine("Content:        {0}", error.Trace.Content);
+            if(error.Trace != null)
+            {
+                Console.WriteLine("Request Id:     {0}", error.Trace.RequestId);
+                Console.WriteLine("Method:         {0}", error.Trace.Method);
+                Console.WriteLine("Url:            {0}", error.Trace.Url);
+                Console.WriteLine("Content:        {0}", error.Trace.Content);
+            }
         }
 
     }
