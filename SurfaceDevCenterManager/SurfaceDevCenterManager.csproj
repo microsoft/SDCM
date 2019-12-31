@@ -63,25 +63,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DevCenterApi\IArtifact.cs" />
-    <Compile Include="DevCenterApi\DevCenterErrorDetails.cs" />
-    <Compile Include="DevCenterApi\DevCenterErrorReturn.cs" />
-    <Compile Include="DevCenterApi\DevCenterResponse.cs" />
     <Compile Include="ErrorCodes.cs" />
-    <Compile Include="Utility\AuthorizationHandlerCredentials.cs" />
     <Compile Include="Utility\DevCenterCredentialsHandler.cs" />
-    <Compile Include="Utility\BlobStorageHandler.cs" />
-    <Compile Include="DevCenterApi\Download.cs" />
-    <Compile Include="DevCenterApi\Link.cs" />
-    <Compile Include="DevCenterApi\Response.cs" />
-    <Compile Include="Utility\AuthorizationHandler.cs" />
-    <Compile Include="DevCenterApi\DevCenterHandler.cs" />
-    <Compile Include="DevCenterApi\Audience.cs" />
-    <Compile Include="DevCenterApi\Product.cs" />
-    <Compile Include="DevCenterApi\DriverMetadata.cs" />
-    <Compile Include="DevCenterApi\ShippingLabel.cs" />
-    <Compile Include="DevCenterApi\Submission.cs" />
-    <Compile Include="DevCenterApi\WorkflowStatus.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -117,6 +100,9 @@
     <PackageReference Include="Microsoft.Data.Services.Client">
       <Version>5.8.4</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Devices.HardwareDevCenterManager">
+      <Version>1.0.3</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory">
       <Version>5.2.4</Version>
     </PackageReference>
@@ -140,9 +126,6 @@
     </PackageReference>
     <PackageReference Include="System.Spatial">
       <Version>5.8.4</Version>
-    </PackageReference>
-    <PackageReference Include="WindowsAzure.Storage">
-      <Version>9.3.3</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

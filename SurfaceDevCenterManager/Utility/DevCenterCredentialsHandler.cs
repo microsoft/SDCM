@@ -3,6 +3,7 @@
 
     Licensed under the MIT license.  See LICENSE file in the project root for full license information.  
 --*/
+using Microsoft.Devices.HardwareDevCenterManager.Utility;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Newtonsoft.Json;
 using System;
