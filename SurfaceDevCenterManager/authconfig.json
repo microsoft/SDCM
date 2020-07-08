@@ -4,6 +4,6 @@
     "key": "string",
     "tenantId": "guid",
     "url": "https://manage.devcenter.microsoft.com",
-    "urlPrefix": "v1.0/my"
+    "urlPrefix": "v2.0/my"
   }
 ]
