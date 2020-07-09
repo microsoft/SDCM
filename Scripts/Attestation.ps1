@@ -20,26 +20,26 @@
 #Requires -Version 5.0
 
 param(
- [Parameter(Mandatory=$true,Position=0)]
- [string] $ProductName,
+  [Parameter(Mandatory = $true, Position = 0)]
+  [string] $ProductName,
 
- [Parameter(Mandatory=$true,Position=1)]
- [ValidateSet("WINDOWS_v100_X64_RS3_FULL","WINDOWS_v100_X64_RS4_FULL")]
- [string[]] $Signatures,
+  [Parameter(Mandatory = $true, Position = 1)]
+  [ValidateSet("WINDOWS_v100_X64_RS3_FULL", "WINDOWS_v100_X64_RS4_FULL")]
+  [string[]] $Signatures,
 
- [Parameter(Mandatory=$true,Position=2)]
- [ValidateScript({Test-Path -Path $_ -PathType Leaf})]
- [string] $InputPath
+  [Parameter(Mandatory = $true, Position = 2)]
+  [ValidateScript( { Test-Path -Path $_ -PathType Leaf })]
+  [string] $InputPath
 )
 
 ###################################################################################################
 # Global Error Handler
 ###################################################################################################
 trap {
-    Write-Output "----- TRAP ----"
-    Write-Output "Unhandled Exception: $($_.Exception.GetType().Name)"
-    Write-Output $_.Exception
-    $_ | Format-List -Force 
+  Write-Output "----- TRAP ----"
+  Write-Output "Unhandled Exception: $($_.Exception.GetType().Name)"
+  Write-Output $_.Exception
+  $_ | Format-List -Force 
 }
 
 ###################################################################################################
@@ -68,14 +68,15 @@ $CreateProductForAttestationJson = @"
   "createProduct": {
     "productName": "$ProductName`_Attestation",
     "testHarness": "Attestation",
-    "selectedProductTypes": { "windows_v100_RS4": "Unclassified" },
-    "requestedSignatures": [ "WINDOWS_v100_X64_RS4_FULL" ],
     "announcementDate": "2018-04-01T00:00:00",
-    "deviceType": "external",
     "deviceMetaDataIds": null,
     "firmwareVersion": "0",
+    "deviceType": "external",
     "isTestSign": false,
+    "isFlightSign": false,
     "markettingNames": null,
+    "selectedProductTypes": { "windows_v100_RS4": "Unclassified" },
+    "requestedSignatures": [ "WINDOWS_v100_X64_RS4_FULL" ],
     "additionalAttributes": null
   }
 }
@@ -100,9 +101,9 @@ Write-Output "    * Submit"
 $output = & $SCDM -create CreateAttest.json
 
 if (-not ([string]$output -match "--- Product: (\d+)")) {
-    Write-Output "Did not find product ID"
-    Write-Output $output
-    return -1
+  Write-Output "Did not find product ID"
+  Write-Output $output
+  return -1
 }
 $SDCM_PID = $Matches[1]
 Write-Output "    * PID: $SDCM_PID"
@@ -116,9 +117,9 @@ Write-Output "    * Submit"
 $output = & $SCDM -create CreateSubmissionAttest.json -productid $SDCM_PID
 
 if (-not ([string]$output -match "---- Submission: (\d+)")) {
-    Write-Output "Did not find submission ID"
-    Write-Output $output
-    return -1
+  Write-Output "Did not find submission ID"
+  Write-Output $output
+  return -1
 }
 $SDCM_SID = $Matches[1]
 Write-Output "    * SID: $SDCM_SID"
