@@ -14,28 +14,53 @@
 
 .PARAMETER CHIDs
     Array of Computer Hardware IDs (CHIDs) to target the driver at a specific set of devices
+
+.PARAMETER IsManualAcquistion
+    In PublishingSpecifications if isAutoInstallDuringOSUpgrade or isAutoInstallOnApplicableSystems is true, then ManualAcquistion must be false
+    In PublishingSpecifications if isAutoInstallDuringOSUpgrade and isAutoInstallOnApplicableSystems are false, then ManualAcquistion must be true
+
+.PARAMETER Audiences
+    Array of Audience IDs the publication should be restricted to
+
+.PARAMETER Floor
+    Lowest OS the driver is available for
+
+.PARAMETER Ceiling
+    Highest OS the driver is available for
 #>
 #Requires -Version 5.0
 
 param(
- [Parameter(Mandatory=$true,Position=0)]
- [string] $ProductId,
+  [Parameter(Mandatory = $true, Position = 0)]
+  [string] $ProductId,
 
- [Parameter(Mandatory=$true,Position=1)]
- [string] $SubmissionId,
+  [Parameter(Mandatory = $true, Position = 1)]
+  [string] $SubmissionId,
 
- [Parameter(Mandatory=$true,Position=2)]
- [string[]] $CHIDs
+  [Parameter(Mandatory = $true, Position = 2)]
+  [string[]] $CHIDs,
+
+  [Parameter(Mandatory = $false, Position = 3)]
+  [bool] $ManualAcquistion = $false,
+
+  [Parameter(Mandatory = $false, Position = 4)]
+  [string[]] $Audiences,
+
+  [Parameter(Mandatory = $false, Position = 5)]
+  [string] $Floor = "19H1",
+
+  [Parameter(Mandatory = $false, Position = 6)]
+  [string] $Ceiling = "19H1"
 )
 
 ###################################################################################################
 # Global Error Handler
 ###################################################################################################
 trap {
-    Write-Output "----- TRAP ----"
-    Write-Output "Unhandled Exception: $($_.Exception.GetType().Name)"
-    Write-Output $_.Exception
-    $_ | Format-List -Force 
+  Write-Output "----- TRAP ----"
+  Write-Output "Unhandled Exception: $($_.Exception.GetType().Name)"
+  Write-Output $_.Exception
+  $_ | Format-List -Force 
 }
 
 ###################################################################################################
@@ -69,6 +94,7 @@ $CreateShippingLabelJson = @"
         "visibleToAccounts": [],
         "isAutoInstallDuringOSUpgrade": true,
         "isAutoInstallOnApplicableSystems": true,
+        "manualAcquistion": $ManualAcquistion,
         "isDisclosureRestricted": true,
         "publishToWindows10s": false,
         "additionalInfoForMsApproval": {
@@ -95,9 +121,15 @@ $CreateShippingLabelJson = @"
       ],
       "chids": [
         {
-          "chid": "guid"
+          "chid": "guid",
+          "distributionState": "pendingAdd"
         }
-      ]
+      ],
+      "restrictedToAudiences": $Audiences,
+      "inServicePublishInfo": {
+        "flooring": $Floor,
+        "ceiling": $Ceiling
+      }
     },
       "name": "$ProductName`_ShippingLabel",
       "destination": "windowsUpdate"
@@ -110,9 +142,9 @@ $CreateShippingLabelJson | Out-File -encoding ASCII CreateShippingLabel.json
 Write-Output "> Create Shipping Label"
 $output = & $SDCM -create CreateShippingLabel.json -productid $ProductId -submissionid $SubmissionId
 if (-not ([string]$output -match "---- Shipping Label: (\d+)")) {
-    Write-Output "Did not find shipping label ID"
-    Write-Output $output
-    return -1
+  Write-Output "Did not find shipping label ID"
+  Write-Output $output
+  return -1
 }
 $ShippingLabelId = $Matches[1]
 Write-Output "    * ShippingLabelId: $ShippingLabelId"
