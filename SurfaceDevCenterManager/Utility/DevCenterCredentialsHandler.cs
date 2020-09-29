@@ -94,6 +94,31 @@ namespace SurfaceDevCenterManager.Utility
             }
             CredentialsOption = CredentialsOption.ToLowerInvariant();
 
+            // Check environment variable option
+            if (CredentialsOption.CompareTo("envonly") == 0)
+            {
+                try
+                {
+                    myCreds = new List<AuthorizationHandlerCredentials>();
+
+                    myCreds.Add(new AuthorizationHandlerCredentials()
+                    {
+                        TenantId = Environment.GetEnvironmentVariable("SDCM_CREDS_TENANTID"),
+                        ClientId = Environment.GetEnvironmentVariable("SDCM_CREDS_CLIENTID"),
+                        Key = Environment.GetEnvironmentVariable("SDCM_CREDS_KEY"),
+                        Url = new Uri(Environment.GetEnvironmentVariable("SDCM_CREDS_URL"), UriKind.Absolute),
+                        UrlPrefix = new Uri(Environment.GetEnvironmentVariable("SDCM_CREDS_URLPREFIX"), UriKind.Relative)
+                    });
+
+                    return myCreds;
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Missing or invalid environment variables: SDCM_CREDS_TENANTID, SDCM_CREDS_CLIENTID, SDCM_CREDS_KEY, SDCM_CREDS_URL, SDCM_CREDS_URLPREFIX");
+                    return null;
+                }
+            }
+
             if ((CredentialsOption.CompareTo("aadonly") == 0) || (CredentialsOption.CompareTo("aadthenfile") == 0))
             {
                 myCreds = await GetWebApiCreds(AADAuthenticationOption);
