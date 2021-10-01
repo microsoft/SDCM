@@ -227,8 +227,16 @@ namespace SurfaceDevCenterManager
                     DevCenterResponse<Product> ret = await api.NewProduct(createInput.CreateProduct);
                     if (ret.Error != null)
                     {
-                        DevCenterErrorDetailsDump(ret.Error);
-                        retval = ErrorCodes.NEW_PRODUCT_API_FAILED;
+                        if (ret.Error.HttpErrorCode == 429)
+                        {
+                            Console.WriteLine($"{ nameof(CreateOption) } { nameof(api.NewProduct) } experienced a HTTP 429 Too Many Requests response.");
+                            return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                        }
+                        else
+                        {
+                            DevCenterErrorDetailsDump(ret.Error);
+                            return ErrorCodes.NEW_PRODUCT_API_FAILED;
+                        }
                     }
                     else
                     {
@@ -250,8 +258,16 @@ namespace SurfaceDevCenterManager
                         DevCenterResponse<Submission> ret = await api.NewSubmission(ProductId, createInput.CreateSubmission);
                         if (ret.Error != null)
                         {
-                            DevCenterErrorDetailsDump(ret.Error);
-                            retval = ErrorCodes.NEW_SUBMISSION_API_FAILED;
+                            if (ret.Error.HttpErrorCode == 429)
+                            {
+                                Console.WriteLine($"{ nameof(CreateOption) } { nameof(api.NewSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                            }
+                            else
+                            {
+                                DevCenterErrorDetailsDump(ret.Error);
+                                return ErrorCodes.NEW_SUBMISSION_API_FAILED;
+                            }
                         }
                         else
                         {
@@ -281,8 +297,16 @@ namespace SurfaceDevCenterManager
                         DevCenterResponse<Submission> retSubmission = await api.GetSubmission(ProductId, SubmissionId);
                         if (retSubmission.Error != null)
                         {
-                            DevCenterErrorDetailsDump(retSubmission.Error);
-                            retval = ErrorCodes.NEW_SHIPPING_LABEL_GET_SUBMISSION_API_FAILED;
+                            if (retSubmission.Error.HttpErrorCode == 429)
+                            {
+                                Console.WriteLine($"{ nameof(CreateOption) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                            }
+                            else
+                            {
+                                DevCenterErrorDetailsDump(retSubmission.Error);
+                                return ErrorCodes.NEW_SHIPPING_LABEL_GET_SUBMISSION_API_FAILED;
+                            }
                         }
 
                         List<Submission> submissions = retSubmission.ReturnValue;
@@ -342,8 +366,16 @@ namespace SurfaceDevCenterManager
                         DevCenterResponse<ShippingLabel> ret = await api.NewShippingLabel(ProductId, SubmissionId, createInput.CreateShippingLabel);
                         if (ret.Error != null)
                         {
-                            DevCenterErrorDetailsDump(ret.Error);
-                            retval = ErrorCodes.NEW_SHIPPING_LABEL_CREATE_API_FAILED;
+                            if (ret.Error.HttpErrorCode == 429)
+                            {
+                                Console.WriteLine($"{ nameof(CreateOption) } { nameof(api.NewShippingLabel) } experienced a HTTP 429 Too Many Requests response.");
+                                return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                            }
+                            else
+                            {
+                                DevCenterErrorDetailsDump(ret.Error);
+                                return ErrorCodes.NEW_SHIPPING_LABEL_CREATE_API_FAILED;
+                            }
                         }
                         else
                         {
@@ -379,8 +411,16 @@ namespace SurfaceDevCenterManager
                     DevCenterResponse<bool> ret = await api.CommitSubmission(ProductId, SubmissionId);
                     if (ret.Error != null)
                     {
-                        DevCenterErrorDetailsDump(ret.Error);
-                        retval = ErrorCodes.COMMIT_API_FAILED;
+                        if (ret.Error.HttpErrorCode == 429)
+                        {
+                            Console.WriteLine($"{ nameof(CommitOption) } { nameof(api.CommitSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                            return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                        }
+                        else
+                        {
+                            DevCenterErrorDetailsDump(ret.Error);
+                            return ErrorCodes.COMMIT_API_FAILED;
+                        }
                     }
                     else
                     {
@@ -408,8 +448,16 @@ namespace SurfaceDevCenterManager
                             DevCenterResponse<Product> ret = await api.GetProducts(ProductId);
                             if (ret.Error != null)
                             {
-                                DevCenterErrorDetailsDump(ret.Error);
-                                retval = ErrorCodes.LIST_GET_PRODUCTS_API_FAILED;
+                                if (ret.Error.HttpErrorCode == 429)
+                                {
+                                    Console.WriteLine($"{ nameof(ListOption) } { nameof(api.GetProducts) } experienced a HTTP 429 Too Many Requests response.");
+                                    return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                                }
+                                else
+                                {
+                                    DevCenterErrorDetailsDump(ret.Error);
+                                    return ErrorCodes.LIST_GET_PRODUCTS_API_FAILED;
+                                }
                             }
                             else
                             {
@@ -426,8 +474,16 @@ namespace SurfaceDevCenterManager
                             DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                             if (ret.Error != null)
                             {
-                                DevCenterErrorDetailsDump(ret.Error);
-                                retval = ErrorCodes.LIST_GET_SUBMISSION_API_FAILED;
+                                if (ret.Error.HttpErrorCode == 429)
+                                {
+                                    Console.WriteLine($"{ nameof(ListOption) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                    return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                                }
+                                else
+                                {
+                                    DevCenterErrorDetailsDump(ret.Error);
+                                    return ErrorCodes.LIST_GET_SUBMISSION_API_FAILED;
+                                }
                             }
                             else
                             {
@@ -444,8 +500,16 @@ namespace SurfaceDevCenterManager
                             DevCenterResponse<ShippingLabel> ret = await api.GetShippingLabels(ProductId, SubmissionId, ShippingLabelId);
                             if (ret.Error != null)
                             {
-                                DevCenterErrorDetailsDump(ret.Error);
-                                retval = ErrorCodes.LIST_GET_SHIPPING_LABEL_API_FAILED;
+                                if (ret.Error.HttpErrorCode == 429)
+                                {
+                                    Console.WriteLine($"{ nameof(ListOption) } { nameof(api.GetShippingLabels) } experienced a HTTP 429 Too Many Requests response.");
+                                    return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                                }
+                                else
+                                {
+                                    DevCenterErrorDetailsDump(ret.Error);
+                                    return ErrorCodes.LIST_GET_SHIPPING_LABEL_API_FAILED;
+                                }
                             }
                             else
                             {
@@ -462,8 +526,16 @@ namespace SurfaceDevCenterManager
                             DevCenterResponse<Submission> ret = await api.GetPartnerSubmission(PublisherId, ProductId, SubmissionId);
                             if (ret.Error != null)
                             {
-                                DevCenterErrorDetailsDump(ret.Error);
-                                retval = ErrorCodes.LIST_GET_PARTNER_SUBMISSION_API_FAILED;
+                                if (ret.Error.HttpErrorCode == 429)
+                                {
+                                    Console.WriteLine($"{ nameof(ListOption) } { nameof(api.GetPartnerSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                    return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                                }
+                                else
+                                {
+                                    DevCenterErrorDetailsDump(ret.Error);
+                                    return ErrorCodes.LIST_GET_PARTNER_SUBMISSION_API_FAILED;
+                                }
                             }
                             else
                             {
@@ -518,8 +590,16 @@ namespace SurfaceDevCenterManager
                     DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                     if (ret.Error != null)
                     {
-                        DevCenterErrorDetailsDump(ret.Error);
-                        retval = ErrorCodes.DOWNLOAD_GET_SUBMISSION_API_FAILED;
+                        if (ret.Error.HttpErrorCode == 400)
+                        {
+                            Console.WriteLine($"{ nameof(DownloadOption) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                            return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                        }
+                        else
+                        {
+                            DevCenterErrorDetailsDump(ret.Error);
+                            return ErrorCodes.DOWNLOAD_GET_SUBMISSION_API_FAILED;
+                        }
                     }
                     List<Submission> submissions = ret.ReturnValue;
                     List<Download.Item> dls = submissions[0].Downloads.Items;
@@ -556,8 +636,16 @@ namespace SurfaceDevCenterManager
                     DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                     if (ret.Error != null)
                     {
-                        DevCenterErrorDetailsDump(ret.Error);
-                        retval = ErrorCodes.METADATA_GET_SUBMISSION_API_FAILED;
+                        if (ret.Error.HttpErrorCode == 429)
+                        {
+                            Console.WriteLine($"{ nameof(MetadataOption) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                            return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                        }
+                        else
+                        {
+                            DevCenterErrorDetailsDump(ret.Error);
+                            return ErrorCodes.METADATA_GET_SUBMISSION_API_FAILED;
+                        }
                     }
                     List<Submission> submissions = ret.ReturnValue;
                     List<Download.Item> dls = submissions[0].Downloads.Items;
@@ -601,8 +689,16 @@ namespace SurfaceDevCenterManager
                     DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                     if (ret.Error != null)
                     {
-                        DevCenterErrorDetailsDump(ret.Error);
-                        retval = ErrorCodes.UPLOAD_GET_SUBMISSION_API_FAILED;
+                        if (ret.Error.HttpErrorCode == 429)
+                        {
+                            Console.WriteLine($"{ nameof(SubmissionPackagePath) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                            return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                        }
+                        else
+                        {
+                            DevCenterErrorDetailsDump(ret.Error);
+                            return ErrorCodes.UPLOAD_GET_SUBMISSION_API_FAILED;
+                        }
                     }
                     List<Submission> submissions = ret.ReturnValue;
                     List<Download.Item> dls = submissions[0].Downloads.Items;
@@ -647,18 +743,39 @@ namespace SurfaceDevCenterManager
                             DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                             if (ret.Error != null)
                             {
-                                DevCenterErrorDetailsDump(ret.Error);
-                                done = true;
-                                retval = ErrorCodes.WAIT_GET_SUBMISSION_API_FAILED;
-                                break;
+                                if (ret.Error.HttpErrorCode == 429)
+                                {
+                                    Console.WriteLine($"{ nameof(WaitOption) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                    await Task.Delay(5000);
+                                    continue;
+                                }
+                                else
+                                {
+                                    DevCenterErrorDetailsDump(ret.Error);
+                                    done = true;
+                                    retval = ErrorCodes.WAIT_GET_SUBMISSION_API_FAILED;
+                                    break;
+                                }
                             }
                             List<Submission> submissions = ret.ReturnValue;
                             Submission sub = submissions[0];
 
                             if (!done)
                             {
+                                if (sub.WorkflowStatus == null)
+                                {
+                                    Console.WriteLine($"{ nameof(WaitOption) } { sub.Name } { nameof(WorkflowStatus) } was NULL.");
+                                    Console.WriteLine($"Please view submission in Partner Center for possible errors. Contact Partner Center support for more information");
+                                    Console.WriteLine("WorkflowStatus documentation can be found here : https://docs.microsoft.com/en-us/windows-hardware/drivers/dashboard/get-product-data#workflow-status-object");
+                                    Console.WriteLine("");
+
+                                    done = true;
+                                    retval = ErrorCodes.WAIT_GET_SUBMISSION_API_FAILED;
+                                    break;
+                                }
+
                                 if (sub.WorkflowStatus.CurrentStep != lastCurrentStep ||
-                                    sub.WorkflowStatus.State != lastState)
+                                sub.WorkflowStatus.State != lastState)
                                 {
                                     lastCurrentStep = sub.WorkflowStatus.CurrentStep;
                                     lastState = sub.WorkflowStatus.State;
@@ -769,8 +886,16 @@ namespace SurfaceDevCenterManager
                 DevCenterResponse<Audience> ret = await api.GetAudiences();
                 if (ret.Error != null)
                 {
-                    DevCenterErrorDetailsDump(ret.Error);
-                    retval = ErrorCodes.AUIDENCE_GET_AUDIENCE_API_FAILED;
+                    if (ret.Error.HttpErrorCode == 429)
+                    {
+                        Console.WriteLine($"{ nameof(AudienceOption) } { nameof(api.GetAudiences) } experienced a HTTP 429 Too Many Requests response.");
+                        return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                    }
+                    else
+                    {
+                        DevCenterErrorDetailsDump(ret.Error);
+                        return ErrorCodes.AUIDENCE_GET_AUDIENCE_API_FAILED;
+                    }
                 }
                 else
                 {
@@ -780,7 +905,6 @@ namespace SurfaceDevCenterManager
                         audience.Dump();
                     }
                 }
-
             }
             else if (CreateMetaData)
             {
@@ -804,8 +928,16 @@ namespace SurfaceDevCenterManager
                     DevCenterResponse<bool> ret = await api.CreateMetaData(ProductId, SubmissionId);
                     if (ret.Error != null)
                     {
-                        DevCenterErrorDetailsDump(ret.Error);
-                        retval = ErrorCodes.CREATEMETADATA_API_FAILED;
+                        if (ret.Error.HttpErrorCode == 429)
+                        {
+                            Console.WriteLine($"{ nameof(CreateMetaData) } { nameof(api.CreateMetaData) } experienced a HTTP 429 Too Many Requests response.");
+                            return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                        }
+                        else
+                        {
+                            DevCenterErrorDetailsDump(ret.Error);
+                            return ErrorCodes.CREATEMETADATA_API_FAILED;
+                        }
                     }
                     else
                     {
@@ -849,8 +981,16 @@ namespace SurfaceDevCenterManager
                     DevCenterResponse<Submission> ret = await api.GetPartnerSubmission(PublisherId, ProductId, SubmissionId);
                     if (ret.Error != null)
                     {
-                        DevCenterErrorDetailsDump(ret.Error);
-                        retval = ErrorCodes.TRANSLATE_API_FAILED;
+                        if (ret.Error.HttpErrorCode == 429)
+                        {
+                            Console.WriteLine($"{ nameof(TranslateOption) } { nameof(api.GetPartnerSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                            return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                        }
+                        else
+                        {
+                            DevCenterErrorDetailsDump(ret.Error);
+                            return ErrorCodes.TRANSLATE_API_FAILED;
+                        }
                     }
                     else
                     {
@@ -922,7 +1062,7 @@ namespace SurfaceDevCenterManager
             }
 
             Console.WriteLine("Correlation Id: {0}", CorrelationId.ToString());
-            if(error.Trace != null)
+            if (error.Trace != null)
             {
                 Console.WriteLine("Request Id:     {0}", error.Trace.RequestId);
                 Console.WriteLine("Method:         {0}", error.Trace.Method);
@@ -930,8 +1070,5 @@ namespace SurfaceDevCenterManager
                 Console.WriteLine("Content:        {0}", error.Trace.Content);
             }
         }
-
     }
 }
-
-
