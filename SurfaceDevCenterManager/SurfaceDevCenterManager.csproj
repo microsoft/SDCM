@@ -107,7 +107,7 @@
       <Version>5.2.8</Version>
     </PackageReference>
     <PackageReference Include="Mono.Options">
-      <Version>6.6.0.161</Version>
+      <Version>6.12.0.148</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.3</Version>
