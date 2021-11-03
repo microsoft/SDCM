@@ -590,7 +590,7 @@ namespace SurfaceDevCenterManager
                     DevCenterResponse<Submission> ret = await api.GetSubmission(ProductId, SubmissionId);
                     if (ret.Error != null)
                     {
-                        if (ret.Error.HttpErrorCode == 400)
+                        if (ret.Error.HttpErrorCode == 429)
                         {
                             Console.WriteLine($"{ nameof(DownloadOption) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
                             return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
@@ -839,10 +839,20 @@ namespace SurfaceDevCenterManager
                             DevCenterResponse<ShippingLabel> ret = await api.GetShippingLabels(ProductId, SubmissionId, ShippingLabelId);
                             if (ret.Error != null)
                             {
-                                DevCenterErrorDetailsDump(ret.Error);
-                                done = true;
-                                retval = ErrorCodes.WAIT_GET_SHIPPING_LABEL_API_FAILED;
-                                break;
+                                if (ret.Error.HttpErrorCode == 429)
+                                {
+                                    Console.WriteLine($"{ nameof(WaitOption) } { nameof(api.GetShippingLabels) } experienced a HTTP 429 Too Many Requests response.");
+                                    await Task.Delay(5000);
+                                    continue;
+                                }
+                                else
+                                {
+
+                                    DevCenterErrorDetailsDump(ret.Error);
+                                    done = true;
+                                    retval = ErrorCodes.WAIT_GET_SHIPPING_LABEL_API_FAILED;
+                                    break;
+                                }
                             }
                             List<ShippingLabel> shippingLabels = ret.ReturnValue;
                             ShippingLabel label = shippingLabels[0];
