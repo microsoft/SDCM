@@ -101,16 +101,13 @@
       <Version>5.8.4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Devices.HardwareDevCenterManager">
-      <Version>2.0.4</Version>
+      <Version>2.2.5</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory">
       <Version>5.2.8</Version>
     </PackageReference>
     <PackageReference Include="Mono.Options">
       <Version>6.12.0.148</Version>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.3</Version>
     </PackageReference>
     <PackageReference Include="System.ComponentModel.EventBasedAsync">
       <Version>4.3.0</Version>
@@ -126,6 +123,9 @@
     </PackageReference>
     <PackageReference Include="System.Spatial">
       <Version>5.8.4</Version>
+    </PackageReference>
+    <PackageReference Include="System.Text.Json">
+      <Version>6.0.2</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

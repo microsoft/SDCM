@@ -1,11 +1,10 @@
 ﻿/*++
     Copyright (c) Microsoft Corporation. All rights reserved.
 
-    Licensed under the MIT license.  See LICENSE file in the project root for full license information.  
+    Licensed under the MIT license.  See LICENSE file in the project root for full license information.
 --*/
 using Microsoft.Devices.HardwareDevCenterManager.Utility;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -13,6 +12,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SurfaceDevCenterManager.Utility
@@ -99,16 +99,17 @@ namespace SurfaceDevCenterManager.Utility
             {
                 try
                 {
-                    myCreds = new List<AuthorizationHandlerCredentials>();
-
-                    myCreds.Add(new AuthorizationHandlerCredentials()
+                    myCreds = new List<AuthorizationHandlerCredentials>
                     {
-                        TenantId = Environment.GetEnvironmentVariable("SDCM_CREDS_TENANTID"),
-                        ClientId = Environment.GetEnvironmentVariable("SDCM_CREDS_CLIENTID"),
-                        Key = Environment.GetEnvironmentVariable("SDCM_CREDS_KEY"),
-                        Url = new Uri(Environment.GetEnvironmentVariable("SDCM_CREDS_URL"), UriKind.Absolute),
-                        UrlPrefix = new Uri(Environment.GetEnvironmentVariable("SDCM_CREDS_URLPREFIX"), UriKind.Relative)
-                    });
+                        new AuthorizationHandlerCredentials()
+                        {
+                            TenantId = Environment.GetEnvironmentVariable("SDCM_CREDS_TENANTID"),
+                            ClientId = Environment.GetEnvironmentVariable("SDCM_CREDS_CLIENTID"),
+                            Key = Environment.GetEnvironmentVariable("SDCM_CREDS_KEY"),
+                            Url = new Uri(Environment.GetEnvironmentVariable("SDCM_CREDS_URL"), UriKind.Absolute),
+                            UrlPrefix = new Uri(Environment.GetEnvironmentVariable("SDCM_CREDS_URLPREFIX"), UriKind.Relative)
+                        }
+                    };
 
                     return myCreds;
                 }
@@ -131,7 +132,7 @@ namespace SurfaceDevCenterManager.Utility
                     try
                     {
                         string authconfig = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\authconfig.json");
-                        myCreds = JsonConvert.DeserializeObject<List<AuthorizationHandlerCredentials>>(authconfig);
+                        myCreds = JsonSerializer.Deserialize<List<AuthorizationHandlerCredentials>>(authconfig);
                         if (myCreds.Count == 0)
                         {
                             myCreds = null;
@@ -266,7 +267,7 @@ namespace SurfaceDevCenterManager.Utility
 
                 if (infoResult.IsSuccessStatusCode)
                 {
-                    ReturnList = JsonConvert.DeserializeObject<List<AuthorizationHandlerCredentials>>(content);
+                    ReturnList = JsonSerializer.Deserialize<List<AuthorizationHandlerCredentials>>(content);
                 }
             }
 
