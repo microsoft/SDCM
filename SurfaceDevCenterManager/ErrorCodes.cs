@@ -1,7 +1,7 @@
 ﻿/*++
     Copyright (c) Microsoft Corporation. All rights reserved.
 
-    Licensed under the MIT license.  See LICENSE file in the project root for full license information.  
+    Licensed under the MIT license.  See LICENSE file in the project root for full license information.
 --*/
 
 namespace SurfaceDevCenterManager
@@ -55,6 +55,8 @@ namespace SurfaceDevCenterManager
         TRANSLATE_SUBMISSION_ID_MISSING = -44,
         TRANSLATE_PUBLISHER_ID_MISSING = -45,
         TRANSLATE_API_FAILED = -46,
-        HTTP_429_RATE_LIMIT_EXCEEDED = -429
+        HTTP_429_RATE_LIMIT_EXCEEDED = -429,
+        PARTNER_CENTER_HTTP_EXCEPTION = -1000,
+        PARTNER_CENTER_HTTP_REQUEST_EXCEPTION = -1001
     }
 }
