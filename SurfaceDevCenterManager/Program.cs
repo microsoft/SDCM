@@ -1267,10 +1267,12 @@ namespace SurfaceDevCenterManager
             Console.WriteLine("");
             Console.WriteLine("============================================================");
             Console.WriteLine("\tSurfaceDevCenterManager Exception Log");
-            Console.WriteLine($"Option:         { option ?? "" }");
-            Console.WriteLine($"Section:        { section ?? "" }");
-            Console.WriteLine($"Type:           { ex.GetType() ?? null }");
-            Console.WriteLine($"Message:        { ex.Message ?? "" }");
+            Console.WriteLine($"Option:          { option ?? "" }");
+            Console.WriteLine($"Section:         { section ?? "" }");
+            Console.WriteLine($"Type:            { ex.GetType() ?? null }");
+            Console.WriteLine($"Message:         { ex.Message ?? "" }");
+            Console.WriteLine($"Inner Exception: { ex.InnerException?.Message ?? "" }");
+            Console.WriteLine($"Correlation Id:  { CorrelationId }");
             Console.WriteLine("============================================================");
             Console.WriteLine("");
         }
