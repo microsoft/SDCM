@@ -13,7 +13,6 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -246,11 +245,6 @@ namespace SurfaceDevCenterManager
                             ret.ReturnValue[0].Dump();
                         }
                     }
-                    catch (HttpRequestException ex)
-                    {
-                        LogExceptionToConsole(ex, nameof(CreateOption), nameof(api.NewProduct));
-                        return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
-                    }
                     catch (Exception ex)
                     {
                         LogExceptionToConsole(ex, nameof(CreateOption), nameof(api.NewProduct));
@@ -290,11 +284,6 @@ namespace SurfaceDevCenterManager
                             {
                                 ret.ReturnValue[0].Dump();
                             }
-                        }
-                        catch (HttpRequestException ex)
-                        {
-                            LogExceptionToConsole(ex, nameof(CreateOption), nameof(api.NewSubmission));
-                            return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
                         }
                         catch (Exception ex)
                         {
@@ -415,11 +404,6 @@ namespace SurfaceDevCenterManager
                                 ret.ReturnValue[0].Dump();
                             }
                         }
-                        catch (HttpRequestException ex)
-                        {
-                            LogExceptionToConsole(ex, nameof(CreateOption), section);
-                            return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
-                        }
                         catch (Exception ex)
                         {
                             LogExceptionToConsole(ex, nameof(CreateOption), section);
@@ -481,11 +465,6 @@ namespace SurfaceDevCenterManager
                             }
 
                         }
-                    }
-                    catch (HttpRequestException ex)
-                    {
-                        LogExceptionToConsole(ex, nameof(CommitOption), nameof(api.CommitSubmission));
-                        return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
                     }
                     catch (Exception ex)
                     {
@@ -616,11 +595,6 @@ namespace SurfaceDevCenterManager
                             break;
                     }
                 }
-                catch (HttpRequestException ex)
-                {
-                    LogExceptionToConsole(ex, nameof(ListOption), section);
-                    return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
-                }
                 catch (Exception ex)
                 {
                     LogExceptionToConsole(ex, nameof(ListOption), section);
@@ -690,11 +664,6 @@ namespace SurfaceDevCenterManager
                             }
                         }
                     }
-                    catch (HttpRequestException ex)
-                    {
-                        LogExceptionToConsole(ex, nameof(DownloadOption), nameof(api.GetSubmission));
-                        return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
-                    }
                     catch (Exception ex)
                     {
                         LogExceptionToConsole(ex, nameof(DownloadOption), nameof(api.GetSubmission));
@@ -756,11 +725,6 @@ namespace SurfaceDevCenterManager
                             Console.WriteLine("> ERROR: No Metadata available for this submission");
                         }
                     }
-                    catch (HttpRequestException ex)
-                    {
-                        LogExceptionToConsole(ex, nameof(MetadataOption), nameof(api.GetSubmission));
-                        return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
-                    }
                     catch (Exception ex)
                     {
                         LogExceptionToConsole(ex, nameof(MetadataOption), nameof(api.GetSubmission));
@@ -815,11 +779,6 @@ namespace SurfaceDevCenterManager
                                 await bsh.Upload(SubmissionPackagePath);
                             }
                         }
-                    }
-                    catch (HttpRequestException ex)
-                    {
-                        LogExceptionToConsole(ex, nameof(SubmissionPackagePath), nameof(api.GetSubmission));
-                        return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
                     }
                     catch (Exception ex)
                     {
@@ -944,11 +903,6 @@ namespace SurfaceDevCenterManager
                                     Console.WriteLine("> Signed Package Ready");
                                 }
                             }
-                            catch (HttpRequestException ex)
-                            {
-                                LogExceptionToConsole(ex, nameof(WaitOption), nameof(api.GetSubmission));
-                                return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
-                            }
                             catch (Exception ex)
                             {
                                 LogExceptionToConsole(ex, nameof(WaitOption), nameof(api.GetSubmission));
@@ -1008,11 +962,6 @@ namespace SurfaceDevCenterManager
                                     await Task.Delay(5000);
                                 }
                             }
-                            catch (HttpRequestException ex)
-                            {
-                                LogExceptionToConsole(ex, nameof(WaitOption), nameof(api.GetShippingLabels));
-                                return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
-                            }
                             catch (Exception ex)
                             {
                                 LogExceptionToConsole(ex, nameof(WaitOption), nameof(api.GetShippingLabels));
@@ -1051,11 +1000,6 @@ namespace SurfaceDevCenterManager
                             audience.Dump();
                         }
                     }
-                }
-                catch (HttpRequestException ex)
-                {
-                    LogExceptionToConsole(ex, nameof(AudienceOption), nameof(api.GetAudiences));
-                    return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
                 }
                 catch (Exception ex)
                 {
@@ -1110,11 +1054,6 @@ namespace SurfaceDevCenterManager
                                 Console.WriteLine("> Create MetaData OK");
                             }
                         }
-                    }
-                    catch (HttpRequestException ex)
-                    {
-                        LogExceptionToConsole(ex, nameof(CreateMetaData), nameof(api.CreateMetaData));
-                        return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
                     }
                     catch (Exception ex)
                     {
@@ -1177,11 +1116,6 @@ namespace SurfaceDevCenterManager
                                 ret.ReturnValue[0].Dump();
                             }
                         }
-                    }
-                    catch (HttpRequestException ex)
-                    {
-                        LogExceptionToConsole(ex, nameof(TranslateOption), nameof(api.GetPartnerSubmission));
-                        return ErrorCodes.PARTNER_CENTER_HTTP_REQUEST_EXCEPTION;
                     }
                     catch (Exception ex)
                     {
