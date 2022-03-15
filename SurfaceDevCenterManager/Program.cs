@@ -7,6 +7,7 @@ using Microsoft.Devices.HardwareDevCenterManager;
 using Microsoft.Devices.HardwareDevCenterManager.DevCenterApi;
 using Microsoft.Devices.HardwareDevCenterManager.Utility;
 using Mono.Options;
+using Newtonsoft.Json;
 using SurfaceDevCenterManager.Utility;
 using System;
 using System.Collections.Generic;
@@ -14,8 +15,6 @@ using System.Configuration;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SurfaceDevCenterManager
@@ -31,16 +30,16 @@ namespace SurfaceDevCenterManager
 
     public class CreateInput
     {
-        [JsonPropertyName("createType")]
+        [JsonProperty("createType")]
         public DevCenterHWSubmissionType CreateType { get; set; }
 
-        [JsonPropertyName("createProduct")]
+        [JsonProperty("createProduct")]
         public NewProduct CreateProduct { get; set; }
 
-        [JsonPropertyName("createSubmission")]
+        [JsonProperty("createSubmission")]
         public NewSubmission CreateSubmission { get; set; }
 
-        [JsonPropertyName("createShippingLabel")]
+        [JsonProperty("createShippingLabel")]
         public NewShippingLabel CreateShippingLabel { get; set; }
     }
 
@@ -222,7 +221,7 @@ namespace SurfaceDevCenterManager
             {
                 Console.WriteLine("> Create Option");
 
-                CreateInput createInput = JsonSerializer.Deserialize<CreateInput>(File.ReadAllText(CreateOption));
+                CreateInput createInput = JsonConvert.DeserializeObject<CreateInput>(File.ReadAllText(CreateOption));
 
                 if (DevCenterHWSubmissionType.Product == createInput.CreateType)
                 {
@@ -355,7 +354,7 @@ namespace SurfaceDevCenterManager
                             }
 
                             string jsonContent = System.IO.File.ReadAllText(tmpfile);
-                            DriverMetadata metadata = JsonSerializer.Deserialize<DriverMetadata>(jsonContent);
+                            DriverMetadata metadata = JsonConvert.DeserializeObject<DriverMetadata>(jsonContent);
                             System.IO.File.Delete(tmpfile);
 
                             List<HardwareId> labelHwids = new List<HardwareId>();
