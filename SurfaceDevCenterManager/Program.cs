@@ -446,6 +446,12 @@ namespace SurfaceDevCenterManager
                                 Console.WriteLine($"{ nameof(CommitOption) } { nameof(api.CommitSubmission) } experienced a HTTP 429 Too Many Requests response.");
                                 return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                             }
+                            if (ret.Error.Code == ErrorCodeConstants.RequestInvalidForCurrentState && ret.Error.Message == ErrorMessageConstants.OnlyPendingSubmissionsCanBeCommitted)
+                            {
+                                Console.WriteLine($"{ nameof(CommitOption) } { nameof(api.CommitSubmission) } request invalid for currentState, { ErrorMessageConstants.OnlyPendingSubmissionsCanBeCommitted }");
+                                DevCenterErrorDetailsDump(ret.Error);
+                                return ErrorCodes.COMMIT_REQUEST_INVALID_FOR_CURRENT_STATE;
+                            }
                             else
                             {
                                 DevCenterErrorDetailsDump(ret.Error);
@@ -519,6 +525,12 @@ namespace SurfaceDevCenterManager
                                     {
                                         Console.WriteLine($"{ nameof(ListOption) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
                                         return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
+                                    }
+                                    if (ret.Error.Code == ErrorCodeConstants.EntityNotFound)
+                                    {
+                                        Console.WriteLine($"{ nameof(ListOption) } { nameof(api.GetSubmission) } entity not found, try translate option.");
+                                        DevCenterErrorDetailsDump(ret.Error);
+                                        return ErrorCodes.SUBMISSION_ENTITY_NOT_FOUND;
                                     }
                                     else
                                     {
