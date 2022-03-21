@@ -1203,9 +1203,9 @@ namespace SurfaceDevCenterManager
         /// <summary>
         /// Log messages to the console for debugging
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="ex"></param>
         /// <param name="option"></param>
-        /// <param name="action"></param>
+        /// <param name="section"></param>
         private static void LogExceptionToConsole(Exception ex, string option, string section)
         {
             if (ex == null) return;
