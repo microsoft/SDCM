@@ -1,7 +1,7 @@
 ﻿/*++
     Copyright (c) Microsoft Corporation. All rights reserved.
 
-    Licensed under the MIT license.  See LICENSE file in the project root for full license information.  
+    Licensed under the MIT license.  See LICENSE file in the project root for full license information.
 --*/
 
 namespace SurfaceDevCenterManager
@@ -55,6 +55,23 @@ namespace SurfaceDevCenterManager
         TRANSLATE_SUBMISSION_ID_MISSING = -44,
         TRANSLATE_PUBLISHER_ID_MISSING = -45,
         TRANSLATE_API_FAILED = -46,
-        HTTP_429_RATE_LIMIT_EXCEEDED = -429
+        SUBMISSION_ENTITY_NOT_FOUND = -47,
+        COMMIT_REQUEST_INVALID_FOR_CURRENT_STATE = -48,
+        HTTP_429_RATE_LIMIT_EXCEEDED = -429,
+        PARTNER_CENTER_HTTP_EXCEPTION = -1000
+    }
+
+    // https://docs.microsoft.com/en-us/windows-hardware/drivers/dashboard/get-product-data#error-codes
+    internal static class ErrorCodeConstants
+    {
+        public const string EntityNotFound = "entityNotFound";
+        public const string RequestInvalidForCurrentState = "requestInvalidForCurrentState";
+    }
+
+    //
+    internal static class ErrorMessageConstants
+    {
+        public const string OnlyPendingSubmissionsCanBeCommitted = "Only pending submissions can be committed.";
+        public const string InitialSubmissionAlreadyExists = "Initial submission already exists";
     }
 }
