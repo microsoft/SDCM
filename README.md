@@ -2,7 +2,7 @@
 
 Surface Dev Center Manager (SDCM) is a tool that utilizes the REST APIs made available by Microsoft Partner Center (a.k.a. Hardware Dev Center) to automate many common tasks for hardware development and maintenance around driver and firmware management.
 
-**SDCM** enables you to create `Attestation` and `WHQL` products, submissions, download the resulting signed packages and manage shipping labels to release software on Windows Update.
+**SDCM** enables you to create `Attestation` and `WHQL` products, submissions, download the resulting signed packages, and manage shipping labels to release software on Windows Update.
 
 > This tool is based on the
 [Hardware Dashboard API](https://docs.microsoft.com/en-us/windows-hardware/drivers/dashboard/dashboard-api). Detailed options are available with the `-?`, `-h` or `-help` option at the command line.
@@ -113,7 +113,7 @@ Surface Dev Center Manager (SDCM) is a tool that utilizes the REST APIs made ava
 # Basic Operations
 ## Create a Product
 Create a json file '`Create_ProductName_HLK.json`' using the Product json example above.
-```shell
+```bash
 sdcm.exe -create Create_ProductName_HLK.json
 ```
 
@@ -124,7 +124,7 @@ sdcm.exe -create Create_ProductName_HLK.json
 
 ## List the Product
 Verify the product was created by listing the details.
-```shell
+```bash
 sdcm.exe -list product -productid PID
 ```
 
@@ -133,7 +133,7 @@ sdcm.exe -list product -productid PID
 
 ## Create a Submission
 Create a json file '`Create_ProductName_Submission_HLK.json`' using the Submission json example above.
-```shell
+```bash
 sdcm.exe -create Create_ProductName_Submission_HLK.json -productid PID
 ```
 
@@ -144,12 +144,12 @@ sdcm.exe -create Create_ProductName_Submission_HLK.json -productid PID
 
 ## List the Submission
 List all the submissions for the product
-```shell
+```bash
 sdcm.exe -list submission -productid PID
 ```
 
 List a specific submission for the product
-```shell
+```bash
 sdcm.exe -list submission -productid PID -submissionid SID
 ```
 
@@ -158,7 +158,7 @@ sdcm.exe -list submission -productid PID -submissionid SID
 
 ## Upload a package to a Submission
 Make sure the package (`.cab` or `.hlkx`) is signed by the [Extended Validation Certificate (EV Cert)](https://docs.microsoft.com/en-us/windows-hardware/drivers/dashboard/get-a-code-signing-certificate) registered with your Partner Center *Hardware* Account
-```shell
+```bash
 sdcm.exe -upload test.hlkx -productid PID -submissionid SID
 ```
 
@@ -167,7 +167,7 @@ sdcm.exe -upload test.hlkx -productid PID -submissionid SID
 
 ## Commit a Submission
 When everything is ready to start processing the submission, commit it
-```shell
+```bash
 sdcm.exe -commit -productid PID -submissionid SID
 ```
 
@@ -175,7 +175,7 @@ sdcm.exe -commit -productid PID -submissionid SID
 <br/>
 
 ## Wait for a Submission to be Ready
-```shell
+```bash
 sdcm.exe -wait -productid PID -submissionid SID
 ```
 
@@ -183,7 +183,7 @@ sdcm.exe -wait -productid PID -submissionid SID
 <br/>
 
 ## Download files from a Submission
-```shell
+```bash
 sdcm.exe -download hlksigned.zip -productid PID -submissionid SID
 ```
 
