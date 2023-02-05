@@ -113,7 +113,7 @@ Surface Dev Center Manager (SDCM) is a tool that utilizes the REST APIs made ava
 # Basic Operations
 ## Create a Product
 Create a json file '`Create_ProductName_HLK.json`' using the Product json example above.
-```ps
+```shell
 sdcm.exe -create Create_ProductName_HLK.json
 ```
 
@@ -124,8 +124,8 @@ sdcm.exe -create Create_ProductName_HLK.json
 
 ## List the Product
 Verify the product was created by listing the details.
-```ps
-sdcm.exe -list product -productid <PID>
+```shell
+sdcm.exe -list product -productid PID
 ```
 
 ---
@@ -133,8 +133,8 @@ sdcm.exe -list product -productid <PID>
 
 ## Create a Submission
 Create a json file '`Create_ProductName_Submission_HLK.json`' using the Submission json example above.
-```ps
-sdcm.exe -create Create_ProductName_Submission_HLK.json -productid <PID>
+```shell
+sdcm.exe -create Create_ProductName_Submission_HLK.json -productid PID
 ```
 
 > This will output a Submission ID (SID) if successful
@@ -144,13 +144,13 @@ sdcm.exe -create Create_ProductName_Submission_HLK.json -productid <PID>
 
 ## List the Submission
 List all the submissions for the product
-```ps
-sdcm.exe -list submission -productid <PID>
+```shell
+sdcm.exe -list submission -productid PID
 ```
 
 List a specific submission for the product
-```ps
-sdcm.exe -list submission -productid <PID> -submissionid <SID>
+```shell
+sdcm.exe -list submission -productid PID -submissionid SID
 ```
 
 ---
@@ -158,8 +158,8 @@ sdcm.exe -list submission -productid <PID> -submissionid <SID>
 
 ## Upload a package to a Submission
 Make sure the package (`.cab` or `.hlkx`) is signed by the [Extended Validation Certificate (EV Cert)](https://docs.microsoft.com/en-us/windows-hardware/drivers/dashboard/get-a-code-signing-certificate) registered with your Partner Center *Hardware* Account
-```ps
-sdcm.exe -upload test.hlkx -productid <PID> -submissionid <SID>
+```shell
+sdcm.exe -upload test.hlkx -productid PID -submissionid SID
 ```
 
 ---
@@ -167,24 +167,24 @@ sdcm.exe -upload test.hlkx -productid <PID> -submissionid <SID>
 
 ## Commit a Submission
 When everything is ready to start processing the submission, commit it
-```ps
-sdcm.exe -commit -productid <PID> -submissionid <SID>
+```shell
+sdcm.exe -commit -productid PID -submissionid SID
 ```
 
 ---
 <br/>
 
 ## Wait for a Submission to be Ready
-```ps
-sdcm.exe -wait -productid <PID> -submissionid <SID>
+```shell
+sdcm.exe -wait -productid PID -submissionid SID
 ```
 
 ---
 <br/>
 
 ## Download files from a Submission
-```ps
-sdcm.exe -download hlksigned.zip -productid <PID> -submissionid <SID>
+```shell
+sdcm.exe -download hlksigned.zip -productid PID -submissionid SID
 ```
 
 ---
