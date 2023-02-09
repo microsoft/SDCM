@@ -15,19 +15,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 4.7.1
+    
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
     
     - name: Restore dependencies
-      run: dotnet restore
-      working-directory: './SurfaceDevCenterManager/'
-      
-    - name: Build
-      run: dotnet build --no-restore
-      working-directory: './SurfaceDevCenterManager/'
+      run: msbuild './SurfaceDevCenterManager/SurfaceDevCenterManager.csproj' -t:restore -property:Configuration=Release
     
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-      working-directory: './SurfaceDevCenterManager/'
+    - name: Build app for release    
+      run: msbuild './SurfaceDevCenterManager/SurfaceDevCenterManager.csproj' -t:build -property:Configuration=Release
