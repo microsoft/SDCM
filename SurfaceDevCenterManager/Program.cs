@@ -1190,13 +1190,12 @@ namespace SurfaceDevCenterManager
                 }
             }
 
-            Console.WriteLine("Correlation Id: {0}", CorrelationId.ToString());
             if (error.Trace != null)
             {
-                Console.WriteLine("Request Id:     {0}", error.Trace.RequestId);
-                Console.WriteLine("Method:         {0}", error.Trace.Method);
-                Console.WriteLine("Url:            {0}", error.Trace.Url);
-                Console.WriteLine("Content:        {0}", error.Trace.Content);
+                Console.WriteLine("Request Id:     {0}", error.Trace.RequestId ?? "");
+                Console.WriteLine("Method:         {0}", error.Trace.Method ?? "" );
+                Console.WriteLine("Url:            {0}", error.Trace.Url ?? "");
+                Console.WriteLine("Content:        {0}", error.Trace.Content ?? "");
             }
         }
 
