@@ -29,14 +29,19 @@ Surface Dev Center Manager (SDCM) is a tool that utilizes the REST APIs made ava
     "createProduct": {
         "productName": "ProductName_HLK",
         "testHarness": "HLK",
-        "selectedProductTypes": { "windows_v100_RS4": "Unclassified" },
-        "requestedSignatures": [ "WINDOWS_v100_X64_RS4_FULL" ],
         "announcementDate": "2023-01-01T00:00:00",
-        "deviceType": "external",
-        "deviceMetaDataIds": null,
+        "deviceMetadataIds": null,
         "firmwareVersion": "0",
+        "deviceType": "external",
         "isTestSign": false,
-        "markettingNames": null,
+        "isFlightSign": false,
+        "marketingNames": null,
+        "selectedProductTypes": {
+            "windows_v100_RS4": "Unclassified"
+        },
+        "requestedSignatures": [
+            "WINDOWS_v100_X64_RS4_FULL"
+        ],
         "additionalAttributes": null
     }
 }
@@ -69,6 +74,7 @@ Surface Dev Center Manager (SDCM) is a tool that utilizes the REST APIs made ava
             "visibleToAccounts": [],
             "isAutoInstallDuringOSUpgrade": true,
             "isAutoInstallOnApplicableSystems": true,
+            "manualAcquisition": false,
             "isDisclosureRestricted": true,
             "publishToWindows10s": false,
             "additionalInfoForMsApproval": {
@@ -95,9 +101,15 @@ Surface Dev Center Manager (SDCM) is a tool that utilizes the REST APIs made ava
             ],
             "chids": [
                 {
-                    "chid": "guid"
+                    "chid": "guid",
+                    "distributionState": "pendingAdd"
                 }
-            ]
+            ],
+            "restrictedToAudiences": [],
+            "inServicePublishInfo": {
+                "flooring": "",
+                "ceiling": ""
+            }
         },
         "name": "ProductName_HLK_ShippingLabel",
         "destination": "windowsUpdate"
