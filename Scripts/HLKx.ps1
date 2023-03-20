@@ -39,7 +39,7 @@ trap {
   Write-Output "----- TRAP ----"
   Write-Output "Unhandled Exception: $($_.Exception.GetType().Name)"
   Write-Output $_.Exception
-  $_ | Format-List -Force 
+  $_ | Format-List -Force
 }
 
 ###################################################################################################
@@ -69,12 +69,12 @@ $CreateProductForHLKxJson = @"
     "productName": "$ProductName`_HLK",
     "testHarness": "HLK",
     "announcementDate": "2018-04-01T00:00:00",
-    "deviceMetaDataIds": null,
+    "deviceMetadataIds": null,
     "firmwareVersion": "0",
     "deviceType": "external",
     "isTestSign": false,
     "isFlightSign": false,
-    "markettingNames": null,
+    "marketingNames": null,
     "selectedProductTypes": { "windows_v100_RS4": "Unclassified" },
     "requestedSignatures": [ "WINDOWS_v100_X64_RS4_FULL" ],
     "additionalAttributes": null
