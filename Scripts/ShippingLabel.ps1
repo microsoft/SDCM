@@ -60,7 +60,7 @@ trap {
   Write-Output "----- TRAP ----"
   Write-Output "Unhandled Exception: $($_.Exception.GetType().Name)"
   Write-Output $_.Exception
-  $_ | Format-List -Force 
+  $_ | Format-List -Force
 }
 
 ###################################################################################################
@@ -131,8 +131,8 @@ $CreateShippingLabelJson = @"
         "ceiling": $Ceiling
       }
     },
-      "name": "$ProductName`_ShippingLabel",
-      "destination": "windowsUpdate"
+    "name": "$ProductName`_ShippingLabel",
+    "destination": "windowsUpdate"
   }
 }
 "@
