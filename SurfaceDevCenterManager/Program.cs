@@ -133,7 +133,7 @@ namespace SurfaceDevCenterManager
                 { "createmetadata",    "Requeset metadata creation for older submissions", v => CreateMetaData = true },
                 { "a|audience",        "List Audiences", v => AudienceOption = true },
                 { "server=",           "Specify target DevCenter server from CredSelect enum", v => { OverrideServer = int.Parse(v); OverrideServerPresent = true; }    },
-                { "creds=",            "Option to specify app credentials.  Options: ENVOnly, FileOnly, AADOnly, AADThenFile (Default)", v => CredentialsOption = v },
+                { "creds=",            "Option to specify app credentials.  Options: ENVOnly, ClientCredentials, ManagedIdentity, MiThenFile, FileOnly, AADOnly, AADThenFile (Default)", v => CredentialsOption = v },
                 { "aad=",              "Option to specify AAD auth behavior.  Options: Never (Default), Prompt, Always, RefreshSession, SelectAccount", v => AADAuthenticationOption = v },
                 { "t|timeout=",        $"Adjust the timeout for HTTP requests to specified seconds.  Default:{DEFAULT_TIMEOUT} seconds", v => TimeoutOption = v  },
                 { "translate",         "Translate the given publisherid, productid and submissionid from a partner to the values visible in your HDC account", v => TranslateOption = true},
