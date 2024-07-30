@@ -19,7 +19,7 @@ namespace SurfaceDevCenterManager.Utility
 {
     internal class DevCenterCredentialsHandler
     {
-        private static readonly byte[] s_aditionalEntropy = { 254, 122, 123, 135, 23, 79, 6 };
+        private static readonly byte[] s_additionalEntropy = { 254, 122, 123, 135, 23, 79, 6 };
 
         private static string GetCredential()
         {
@@ -36,7 +36,7 @@ namespace SurfaceDevCenterManager.Utility
                 {
                     try
                     {
-                        data = ProtectedData.Unprotect(encryptData, s_aditionalEntropy, DataProtectionScope.CurrentUser);
+                        data = ProtectedData.Unprotect(encryptData, s_additionalEntropy, DataProtectionScope.CurrentUser);
                         retval = Encoding.Unicode.GetString(data);
                     }
                     catch (CryptographicException)
@@ -56,7 +56,7 @@ namespace SurfaceDevCenterManager.Utility
             bool retval = false;
             try
             {
-                encryptData = ProtectedData.Protect(data, s_aditionalEntropy, DataProtectionScope.CurrentUser);
+                encryptData = ProtectedData.Protect(data, s_additionalEntropy, DataProtectionScope.CurrentUser);
             }
             catch (CryptographicException)
             {
@@ -95,7 +95,7 @@ namespace SurfaceDevCenterManager.Utility
             CredentialsOption = CredentialsOption.ToLowerInvariant();
 
             // Check environment variable option
-            if (CredentialsOption.CompareTo("envonly") == 0)
+            if (CredentialsOption.CompareTo("clientcredentials") == 0 || CredentialsOption.CompareTo("envonly") == 0)
             {
                 try
                 {
@@ -111,12 +111,60 @@ namespace SurfaceDevCenterManager.Utility
                         }
                     };
 
+                    myCreds = IsValidCredentials(myCreds[0], managedIdentity: false) == true ? myCreds : null;
                     return myCreds;
                 }
                 catch (Exception)
                 {
                     Console.WriteLine("Missing or invalid environment variables: SDCM_CREDS_TENANTID, SDCM_CREDS_CLIENTID, SDCM_CREDS_KEY, SDCM_CREDS_URL, SDCM_CREDS_URLPREFIX");
                     return null;
+                }
+            }
+
+            if (CredentialsOption.CompareTo("managedidentity") == 0)
+            {
+                try
+                {
+                    myCreds = new List<AuthorizationHandlerCredentials>
+                    {
+                        new AuthorizationHandlerCredentials()
+                        {
+                            TenantId = Environment.GetEnvironmentVariable("SDCM_CREDS_TENANTID"),
+                            ClientId = Environment.GetEnvironmentVariable("SDCM_CREDS_CLIENTID"),
+                            Url = new Uri(Environment.GetEnvironmentVariable("SDCM_CREDS_URL"), UriKind.Absolute),
+                            UrlPrefix = new Uri(Environment.GetEnvironmentVariable("SDCM_CREDS_URLPREFIX"), UriKind.Relative),
+                            ManagedIdentityClientId = Environment.GetEnvironmentVariable("SDCM_CREDS_MI_CLIENTID"),
+                            Scope = Environment.GetEnvironmentVariable("SDCM_CREDS_MI_SCOPE")
+                        }
+                    };
+
+                    myCreds = IsValidCredentials(myCreds[0], managedIdentity: true) == true ? myCreds : null;
+                    return myCreds;
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Missing or invalid environment variables: SDCM_CREDS_TENANTID, SDCM_CREDS_CLIENTID, SDCM_CREDS_MI_CLIENTID, SDCM_CREDS_MI_SCOPE, SDCM_CREDS_URL, SDCM_CREDS_URLPREFIX");
+                    return null;
+                }
+            }
+
+            if (CredentialsOption.CompareTo("mithenfile") == 0)
+            {
+                try
+                {
+                    string authconfig = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "\\authconfig.json");
+                    myCreds = JsonConvert.DeserializeObject<List<AuthorizationHandlerCredentials>>(authconfig);
+                    if (myCreds.Count == 0)
+                    {
+                        myCreds = null;
+                    }
+
+                    myCreds = IsValidCredentials(myCreds[0], managedIdentity: true) == true ? myCreds : null;
+                    return myCreds;
+                }
+                catch (Exception)
+                {
+                    myCreds = null;
                 }
             }
 
@@ -272,6 +320,43 @@ namespace SurfaceDevCenterManager.Utility
             }
 
             return ReturnList;
+        }
+
+        private static bool IsValidCredentials(AuthorizationHandlerCredentials creds, bool managedIdentity)
+        {
+            bool isValidCredentials = true;
+
+            if (string.IsNullOrWhiteSpace(creds.TenantId) || creds.TenantId.CompareTo("guid") == 0)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(creds.ClientId) || creds.ClientId.CompareTo("guid") == 0)
+            {
+                return false;
+            }
+
+            if (managedIdentity)
+            {
+                if (string.IsNullOrWhiteSpace(creds.ManagedIdentityClientId) || creds.ManagedIdentityClientId.CompareTo("guid") == 0)
+                {
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(creds.Scope) || creds.Scope.CompareTo("string") == 0)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(creds.Key) || creds.Key.CompareTo("string") == 0)
+                {
+                    return false;
+                }
+            }
+
+            return isValidCredentials;
         }
     }
 }

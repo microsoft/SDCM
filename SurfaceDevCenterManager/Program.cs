@@ -130,10 +130,10 @@ namespace SurfaceDevCenterManager
                 { "h|help",            "Show this message and exit", v => show_help = v != null },
                 { "w|wait",            "Wait for submission id to be done", v => WaitOption = true },
                 { "waitmetadata",      "Wait for metadata to be done as well in a submission", v => WaitForMetaData = true },
-                { "createmetadata",    "Requeset metadata creation for older submissions", v => CreateMetaData = true },
+                { "createmetadata",    "Request metadata creation for older submissions", v => CreateMetaData = true },
                 { "a|audience",        "List Audiences", v => AudienceOption = true },
                 { "server=",           "Specify target DevCenter server from CredSelect enum", v => { OverrideServer = int.Parse(v); OverrideServerPresent = true; }    },
-                { "creds=",            "Option to specify app credentials.  Options: ENVOnly, FileOnly, AADOnly, AADThenFile (Default)", v => CredentialsOption = v },
+                { "creds=",            "Option to specify app credentials.  Options: ENVOnly, ClientCredentials, ManagedIdentity, MiThenFile, FileOnly, AADOnly, AADThenFile (Default)", v => CredentialsOption = v },
                 { "aad=",              "Option to specify AAD auth behavior.  Options: Never (Default), Prompt, Always, RefreshSession, SelectAccount", v => AADAuthenticationOption = v },
                 { "t|timeout=",        $"Adjust the timeout for HTTP requests to specified seconds.  Default:{DEFAULT_TIMEOUT} seconds", v => TimeoutOption = v  },
                 { "translate",         "Translate the given publisherid, productid and submissionid from a partner to the values visible in your HDC account", v => TranslateOption = true},
@@ -231,7 +231,7 @@ namespace SurfaceDevCenterManager
                         {
                             if (ret.Error.HttpErrorCode == 429)
                             {
-                                Console.WriteLine($"{ nameof(CreateOption) } { nameof(api.NewProduct) } experienced a HTTP 429 Too Many Requests response.");
+                                Console.WriteLine($"{nameof(CreateOption)} {nameof(api.NewProduct)} experienced a HTTP 429 Too Many Requests response.");
                                 return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                             }
                             else
@@ -250,7 +250,6 @@ namespace SurfaceDevCenterManager
                         LogExceptionToConsole(ex, nameof(CreateOption), nameof(api.NewProduct));
                         return ErrorCodes.PARTNER_CENTER_HTTP_EXCEPTION;
                     }
-
                 }
                 else if (DevCenterHWSubmissionType.Submission == createInput.CreateType)
                 {
@@ -271,7 +270,7 @@ namespace SurfaceDevCenterManager
                             {
                                 if (ret.Error.HttpErrorCode == 429)
                                 {
-                                    Console.WriteLine($"{ nameof(CreateOption) } { nameof(api.NewSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                    Console.WriteLine($"{nameof(CreateOption)} {nameof(api.NewSubmission)} experienced a HTTP 429 Too Many Requests response.");
                                     return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                                 }
                                 else
@@ -320,7 +319,7 @@ namespace SurfaceDevCenterManager
                             {
                                 if (retSubmission.Error.HttpErrorCode == 429)
                                 {
-                                    Console.WriteLine($"{ nameof(CreateOption) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                    Console.WriteLine($"{nameof(CreateOption)} {nameof(api.GetSubmission)} experienced a HTTP 429 Too Many Requests response.");
                                     return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                                 }
                                 else
@@ -390,7 +389,7 @@ namespace SurfaceDevCenterManager
                             {
                                 if (ret.Error.HttpErrorCode == 429)
                                 {
-                                    Console.WriteLine($"{ nameof(CreateOption) } { nameof(api.NewShippingLabel) } experienced a HTTP 429 Too Many Requests response.");
+                                    Console.WriteLine($"{nameof(CreateOption)} {nameof(api.NewShippingLabel)} experienced a HTTP 429 Too Many Requests response.");
                                     return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                                 }
                                 else
@@ -443,12 +442,12 @@ namespace SurfaceDevCenterManager
                         {
                             if (ret.Error.HttpErrorCode == 429)
                             {
-                                Console.WriteLine($"{ nameof(CommitOption) } { nameof(api.CommitSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                Console.WriteLine($"{nameof(CommitOption)} {nameof(api.CommitSubmission)} experienced a HTTP 429 Too Many Requests response.");
                                 return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                             }
                             if (ret.Error.Code == ErrorCodeConstants.RequestInvalidForCurrentState && ret.Error.Message == ErrorMessageConstants.OnlyPendingSubmissionsCanBeCommitted)
                             {
-                                Console.WriteLine($"{ nameof(CommitOption) } { nameof(api.CommitSubmission) } request invalid for currentState, { ErrorMessageConstants.OnlyPendingSubmissionsCanBeCommitted }");
+                                Console.WriteLine($"{nameof(CommitOption)} {nameof(api.CommitSubmission)} request invalid for currentState, {ErrorMessageConstants.OnlyPendingSubmissionsCanBeCommitted}");
                                 DevCenterErrorDetailsDump(ret.Error);
                                 return ErrorCodes.COMMIT_REQUEST_INVALID_FOR_CURRENT_STATE;
                             }
@@ -469,7 +468,6 @@ namespace SurfaceDevCenterManager
                             {
                                 Console.WriteLine("> Commit OK");
                             }
-
                         }
                     }
                     catch (Exception ex)
@@ -496,7 +494,7 @@ namespace SurfaceDevCenterManager
                                 {
                                     if (ret.Error.HttpErrorCode == 429)
                                     {
-                                        Console.WriteLine($"{ nameof(ListOption) } { nameof(api.GetProducts) } experienced a HTTP 429 Too Many Requests response.");
+                                        Console.WriteLine($"{nameof(ListOption)} {nameof(api.GetProducts)} experienced a HTTP 429 Too Many Requests response.");
                                         return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                                     }
                                     else
@@ -523,12 +521,12 @@ namespace SurfaceDevCenterManager
                                 {
                                     if (ret.Error.HttpErrorCode == 429)
                                     {
-                                        Console.WriteLine($"{ nameof(ListOption) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                        Console.WriteLine($"{nameof(ListOption)} {nameof(api.GetSubmission)} experienced a HTTP 429 Too Many Requests response.");
                                         return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                                     }
                                     if (ret.Error.Code == ErrorCodeConstants.EntityNotFound)
                                     {
-                                        Console.WriteLine($"{ nameof(ListOption) } { nameof(api.GetSubmission) } entity not found, try translate option.");
+                                        Console.WriteLine($"{nameof(ListOption)} {nameof(api.GetSubmission)} entity not found, try translate option.");
                                         DevCenterErrorDetailsDump(ret.Error);
                                         return ErrorCodes.SUBMISSION_ENTITY_NOT_FOUND;
                                     }
@@ -556,7 +554,7 @@ namespace SurfaceDevCenterManager
                                 {
                                     if (ret.Error.HttpErrorCode == 429)
                                     {
-                                        Console.WriteLine($"{ nameof(ListOption) } { nameof(api.GetShippingLabels) } experienced a HTTP 429 Too Many Requests response.");
+                                        Console.WriteLine($"{nameof(ListOption)} {nameof(api.GetShippingLabels)} experienced a HTTP 429 Too Many Requests response.");
                                         return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                                     }
                                     else
@@ -583,7 +581,7 @@ namespace SurfaceDevCenterManager
                                 {
                                     if (ret.Error.HttpErrorCode == 429)
                                     {
-                                        Console.WriteLine($"{ nameof(ListOption) } { nameof(api.GetPartnerSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                        Console.WriteLine($"{nameof(ListOption)} {nameof(api.GetPartnerSubmission)} experienced a HTTP 429 Too Many Requests response.");
                                         return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                                     }
                                     else
@@ -655,7 +653,7 @@ namespace SurfaceDevCenterManager
                         {
                             if (ret.Error.HttpErrorCode == 429)
                             {
-                                Console.WriteLine($"{ nameof(DownloadOption) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                Console.WriteLine($"{nameof(DownloadOption)} {nameof(api.GetSubmission)} experienced a HTTP 429 Too Many Requests response.");
                                 return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                             }
                             else
@@ -709,7 +707,7 @@ namespace SurfaceDevCenterManager
                         {
                             if (ret.Error.HttpErrorCode == 429)
                             {
-                                Console.WriteLine($"{ nameof(MetadataOption) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                Console.WriteLine($"{nameof(MetadataOption)} {nameof(api.GetSubmission)} experienced a HTTP 429 Too Many Requests response.");
                                 return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                             }
                             else
@@ -770,7 +768,7 @@ namespace SurfaceDevCenterManager
                         {
                             if (ret.Error.HttpErrorCode == 429)
                             {
-                                Console.WriteLine($"{ nameof(SubmissionPackagePath) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                Console.WriteLine($"{nameof(SubmissionPackagePath)} {nameof(api.GetSubmission)} experienced a HTTP 429 Too Many Requests response.");
                                 return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                             }
                             else
@@ -832,7 +830,7 @@ namespace SurfaceDevCenterManager
                                 {
                                     if (ret.Error.HttpErrorCode == 429)
                                     {
-                                        Console.WriteLine($"{ nameof(WaitOption) } { nameof(api.GetSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                        Console.WriteLine($"{nameof(WaitOption)} {nameof(api.GetSubmission)} experienced a HTTP 429 Too Many Requests response.");
                                         await Task.Delay(5000);
                                         continue;
                                     }
@@ -851,7 +849,7 @@ namespace SurfaceDevCenterManager
                                 {
                                     if (sub.WorkflowStatus == null)
                                     {
-                                        Console.WriteLine($"{ nameof(WaitOption) } { sub.Name } { nameof(WorkflowStatus) } was NULL. Will continue to wait...");
+                                        Console.WriteLine($"{nameof(WaitOption)} {sub.Name} {nameof(WorkflowStatus)} was NULL. Will continue to wait...");
                                         continue;
                                     }
 
@@ -930,7 +928,7 @@ namespace SurfaceDevCenterManager
                                 {
                                     if (ret.Error.HttpErrorCode == 429)
                                     {
-                                        Console.WriteLine($"{ nameof(WaitOption) } { nameof(api.GetShippingLabels) } experienced a HTTP 429 Too Many Requests response.");
+                                        Console.WriteLine($"{nameof(WaitOption)} {nameof(api.GetShippingLabels)} experienced a HTTP 429 Too Many Requests response.");
                                         await Task.Delay(5000);
                                         continue;
                                     }
@@ -995,7 +993,7 @@ namespace SurfaceDevCenterManager
                     {
                         if (ret.Error.HttpErrorCode == 429)
                         {
-                            Console.WriteLine($"{ nameof(AudienceOption) } { nameof(api.GetAudiences) } experienced a HTTP 429 Too Many Requests response.");
+                            Console.WriteLine($"{nameof(AudienceOption)} {nameof(api.GetAudiences)} experienced a HTTP 429 Too Many Requests response.");
                             return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                         }
                         else
@@ -1045,7 +1043,7 @@ namespace SurfaceDevCenterManager
                         {
                             if (ret.Error.HttpErrorCode == 429)
                             {
-                                Console.WriteLine($"{ nameof(CreateMetaData) } { nameof(api.CreateMetaData) } experienced a HTTP 429 Too Many Requests response.");
+                                Console.WriteLine($"{nameof(CreateMetaData)} {nameof(api.CreateMetaData)} experienced a HTTP 429 Too Many Requests response.");
                                 return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                             }
                             else
@@ -1106,7 +1104,7 @@ namespace SurfaceDevCenterManager
                         {
                             if (ret.Error.HttpErrorCode == 429)
                             {
-                                Console.WriteLine($"{ nameof(TranslateOption) } { nameof(api.GetPartnerSubmission) } experienced a HTTP 429 Too Many Requests response.");
+                                Console.WriteLine($"{nameof(TranslateOption)} {nameof(api.GetPartnerSubmission)} experienced a HTTP 429 Too Many Requests response.");
                                 return ErrorCodes.HTTP_429_RATE_LIMIT_EXCEEDED;
                             }
                             else
@@ -1193,7 +1191,7 @@ namespace SurfaceDevCenterManager
             if (error.Trace != null)
             {
                 Console.WriteLine("Request Id:     {0}", error.Trace.RequestId ?? "");
-                Console.WriteLine("Method:         {0}", error.Trace.Method ?? "" );
+                Console.WriteLine("Method:         {0}", error.Trace.Method ?? "");
                 Console.WriteLine("Url:            {0}", error.Trace.Url ?? "");
                 Console.WriteLine("Content:        {0}", error.Trace.Content ?? "");
             }
@@ -1211,12 +1209,12 @@ namespace SurfaceDevCenterManager
             Console.WriteLine("");
             Console.WriteLine("============================================================");
             Console.WriteLine("\tSurfaceDevCenterManager Exception Log");
-            Console.WriteLine($"Option:          { option ?? "" }");
-            Console.WriteLine($"Section:         { section ?? "" }");
-            Console.WriteLine($"Type:            { ex.GetType() ?? null }");
-            Console.WriteLine($"Message:         { ex.Message ?? "" }");
-            Console.WriteLine($"Inner Exception: { ex.InnerException?.Message ?? "" }");
-            Console.WriteLine($"Correlation Id:  { CorrelationId }");
+            Console.WriteLine($"Option:          {option ?? ""}");
+            Console.WriteLine($"Section:         {section ?? ""}");
+            Console.WriteLine($"Type:            {ex.GetType() ?? null}");
+            Console.WriteLine($"Message:         {ex.Message ?? ""}");
+            Console.WriteLine($"Inner Exception: {ex.InnerException?.Message ?? ""}");
+            Console.WriteLine($"Correlation Id:  {CorrelationId}");
             Console.WriteLine("============================================================");
             Console.WriteLine("");
         }
