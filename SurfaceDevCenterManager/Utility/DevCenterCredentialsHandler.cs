@@ -19,7 +19,7 @@ namespace SurfaceDevCenterManager.Utility
 {
     internal class DevCenterCredentialsHandler
     {
-        private static readonly byte[] s_aditionalEntropy = { 254, 122, 123, 135, 23, 79, 6 };
+        private static readonly byte[] s_additionalEntropy = { 254, 122, 123, 135, 23, 79, 6 };
 
         private static string GetCredential()
         {
@@ -36,7 +36,7 @@ namespace SurfaceDevCenterManager.Utility
                 {
                     try
                     {
-                        data = ProtectedData.Unprotect(encryptData, s_aditionalEntropy, DataProtectionScope.CurrentUser);
+                        data = ProtectedData.Unprotect(encryptData, s_additionalEntropy, DataProtectionScope.CurrentUser);
                         retval = Encoding.Unicode.GetString(data);
                     }
                     catch (CryptographicException)
@@ -56,7 +56,7 @@ namespace SurfaceDevCenterManager.Utility
             bool retval = false;
             try
             {
-                encryptData = ProtectedData.Protect(data, s_aditionalEntropy, DataProtectionScope.CurrentUser);
+                encryptData = ProtectedData.Protect(data, s_additionalEntropy, DataProtectionScope.CurrentUser);
             }
             catch (CryptographicException)
             {
@@ -354,7 +354,6 @@ namespace SurfaceDevCenterManager.Utility
                 {
                     return false;
                 }
-
             }
 
             return isValidCredentials;
