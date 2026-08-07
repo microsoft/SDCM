@@ -1,0 +1,13 @@
+{
+  "// Copy this file to authconfig.json (see `sdcm config path`) and fill in your values.": "",
+  "profiles": {
+    "default": {
+      "tenantId": "00000000-0000-0000-0000-000000000000",
+      "clientId": "00000000-0000-0000-0000-000000000000",
+      "key": null,
+      "managedIdentityClientId": null,
+      "url": "https://manage.devcenter.microsoft.com",
+      "urlPrefix": "v2.0/my"
+    }
+  }
+}

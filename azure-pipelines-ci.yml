@@ -1,41 +1,51 @@
-# .NET Desktop
-# Build and run tests for .NET Desktop or Windows classic desktop solutions.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/apps/windows/dot-net
+# Build, test and pack the sdcm .NET tool, publishing the .nupkg as a build artifact
+# https://learn.microsoft.com/azure/devops/pipelines/ecosystems/dotnet-core
 
 pool:
-  vmImage: 'VS2017-Win2016'
+  vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'AnyCPU'
   buildConfiguration: 'Release'
 
-name: 1.$(Date:yyyy).$(Date:MMdd).$(Rev:r)
+name: 2.$(Date:yyyy).$(Date:MMdd).$(Rev:r)
 
 steps:
-- task: NuGetToolInstaller@0
-
-- task: NuGetCommand@2
+- task: UseDotNet@2
+  displayName: 'Use .NET 10 SDK'
   inputs:
-    restoreSolution: '$(solution)'
+    packageType: 'sdk'
+    version: '10.0.x'
 
-- task: Powershell@2
-  displayName: Update Assembly Version
+- task: DotNetCoreCLI@2
+  displayName: 'Restore'
   inputs:
-    targetType: filePath
-    filePath: 'build\Set-AssemblyInfo.ps1'
-    arguments: '-BuildVersion $(Build.BuildNumber) -AssemblyInfoFile SurfaceDevCenterManager\Properties\AssemblyInfo.cs'
-    workingDirectory: '.'
+    command: 'restore'
+    projects: 'SurfaceDevCenterManager.slnx'
 
-- task: VSBuild@1
+- task: DotNetCoreCLI@2
+  displayName: 'Build'
   inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
+    command: 'build'
+    projects: 'SurfaceDevCenterManager.slnx'
+    arguments: '--configuration $(buildConfiguration) --no-restore -p:Version=$(Build.BuildNumber)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Test'
+  inputs:
+    command: 'test'
+    projects: 'SurfaceDevCenterManager.slnx'
+    arguments: '--configuration $(buildConfiguration) --no-build'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Pack'
+  inputs:
+    command: 'pack'
+    packagesToPack: 'src/SurfaceDevCenterManager/SurfaceDevCenterManager.csproj'
     configuration: '$(buildConfiguration)'
+    nobuild: true
+    versioningScheme: 'byBuildNumber'
 
 - task: PublishBuildArtifacts@1
   inputs:
-    PathToPublish: '$(System.DefaultWorkingDirectory)'
-    name: 'drop'
-
+    PathToPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'

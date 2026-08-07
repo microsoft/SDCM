@@ -1,26 +1,40 @@
-# This workflow will build a .NET project
+# This workflow will build, test and pack the sdcm .NET tool
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
 name: .NET Build Validation
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "modernize" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "modernize" ]
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.1
-    
+    - uses: actions/checkout@v5
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: '10.0.x'
+
     - name: Restore dependencies
-      run: msbuild './SurfaceDevCenterManager/SurfaceDevCenterManager.csproj' -t:restore -property:Configuration=Release
-    
-    - name: Build app for release    
-      run: msbuild './SurfaceDevCenterManager/SurfaceDevCenterManager.csproj' -t:build -property:Configuration=Release
+      run: dotnet restore SurfaceDevCenterManager.slnx
+
+    - name: Build
+      run: dotnet build SurfaceDevCenterManager.slnx -c Release --no-restore
+
+    - name: Test
+      run: dotnet test SurfaceDevCenterManager.slnx -c Release --no-build
+
+    - name: Pack
+      run: dotnet pack src/SurfaceDevCenterManager/SurfaceDevCenterManager.csproj -c Release --no-build -o ./nupkg
+
+    - name: Upload nupkg artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdcm-nupkg
+        path: ./nupkg/*.nupkg

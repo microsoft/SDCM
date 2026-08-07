@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SurfaceDevCenterManager/SurfaceDevCenterManager.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SurfaceDevCenterManager.Tests/SurfaceDevCenterManager.Tests.csproj" />
+  </Folder>
+</Solution>
