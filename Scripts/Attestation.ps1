@@ -53,6 +53,13 @@ if (-not (Test-Path -LiteralPath $SCDM -PathType Leaf)) {
   exit 1
 }
 
+function Assert-SdcmSuccess([string] $Step) {
+  if ($LASTEXITCODE -ne 0) {
+    Write-Output "sdcm.exe failed during '$Step' with exit code $LASTEXITCODE"
+    exit $LASTEXITCODE
+  }
+}
+
 ###################################################################################################
 # Functions
 ###################################################################################################
@@ -103,6 +110,8 @@ $json.createProduct.requestedSignatures = $Signatures
 $json | ConvertTo-Json | Out-File -Encoding ASCII -FilePath "CreateAttest.json"
 Write-Output "    * Submit"
 $output = & $SCDM -create CreateAttest.json
+if ($LASTEXITCODE -ne 0) { Write-Output $output }
+Assert-SdcmSuccess "Create Product"
 
 if (-not ([string]$output -match "--- Product: (\d+)")) {
   Write-Output "Did not find product ID"
@@ -119,6 +128,8 @@ $json.createSubmission.name = "$ProductName`_Attestation_Submission"
 $json | ConvertTo-Json | Out-File -Encoding ASCII -FilePath "CreateSubmissionAttest.json"
 Write-Output "    * Submit"
 $output = & $SCDM -create CreateSubmissionAttest.json -productid $SDCM_PID
+if ($LASTEXITCODE -ne 0) { Write-Output $output }
+Assert-SdcmSuccess "Create Submission"
 
 if (-not ([string]$output -match "---- Submission: (\d+)")) {
   Write-Output "Did not find submission ID"
@@ -130,18 +141,22 @@ Write-Output "    * SID: $SDCM_SID"
 
 Write-Output "> Upload File"
 & $SCDM -upload $InputPath -productid $SDCM_PID -submissionid $SDCM_SID
+Assert-SdcmSuccess "Upload File"
 
 Write-Output "> Commit Submission"
 & $SCDM -commit -productid $SDCM_PID -submissionid $SDCM_SID
+Assert-SdcmSuccess "Commit Submission"
 
 Write-Output "> Wait for Submission to complete"
 Write-Output "    * Dev Center URL: https://developer.microsoft.com/en-us/dashboard/hardware/driver/$SDCM_PID"
 Write-Output "    * PID: $SDCM_PID"
 Write-Output "    * SID: $SDCM_SID"
 & $SCDM -wait -productid $SDCM_PID -submissionid $SDCM_SID
+Assert-SdcmSuccess "Wait for Submission"
 
 Write-Output "> Download File"
 & $SCDM -productid $SDCM_PID -submissionid $SDCM_SID -download $InputPath`.signed`.zip
+Assert-SdcmSuccess "Download File"
 
 Write-Output "> Done"
 Write-Output "    * Output: $InputPath`.signed`.zip"

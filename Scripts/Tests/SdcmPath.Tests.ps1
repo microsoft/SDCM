@@ -110,6 +110,10 @@ try {
 	Assert-True ($r.ExitCode -ne 0) "missing sdcm.exe returns non-zero (exit $($r.ExitCode))"
 	Assert-True ($r.Output -match "sdcm.exe not found") "missing sdcm.exe reports a clear error"
 	Assert-True (-not (Test-Path (Join-Path $WorkDir "workdir.log"))) "no fallback to working directory when missing"
+
+	# Executable failure is detected
+	$r = Invoke-Script (Join-Path $FailDir $case.Name) $scriptArgs $WorkDir
+	Assert-True ($r.ExitCode -eq 5) "sdcm.exe failure propagates exit code (exit $($r.ExitCode))"
   }
 }
 finally {

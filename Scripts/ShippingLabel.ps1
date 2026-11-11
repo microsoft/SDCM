@@ -74,6 +74,13 @@ if (-not (Test-Path -LiteralPath $SDCM -PathType Leaf)) {
   exit 1
 }
 
+function Assert-SdcmSuccess([string] $Step) {
+  if ($LASTEXITCODE -ne 0) {
+    Write-Output "sdcm.exe failed during '$Step' with exit code $LASTEXITCODE"
+    exit $LASTEXITCODE
+  }
+}
+
 ###################################################################################################
 # Functions
 ###################################################################################################
@@ -87,6 +94,7 @@ Write-Output ""
 
 Write-Output "> Wait for Driver Metadata to be ready"
 & $SDCM -wait -waitmetadata -productid $ProductId -submissionid $SubmissionId
+Assert-SdcmSuccess "Wait for Driver Metadata"
 
 Write-Output "> Generate Shipping Label json"
 $CreateShippingLabelJson = @"
@@ -145,6 +153,8 @@ $CreateShippingLabelJson | Out-File -encoding ASCII CreateShippingLabel.json
 
 Write-Output "> Create Shipping Label"
 $output = & $SDCM -create CreateShippingLabel.json -productid $ProductId -submissionid $SubmissionId
+if ($LASTEXITCODE -ne 0) { Write-Output $output }
+Assert-SdcmSuccess "Create Shipping Label"
 if (-not ([string]$output -match "---- Shipping Label: (\d+)")) {
   Write-Output "Did not find shipping label ID"
   Write-Output $output
@@ -155,6 +165,7 @@ Write-Output "    * ShippingLabelId: $ShippingLabelId"
 
 Write-Output "> Wait for Shipping Label"
 & $SDCM -wait -productid $ProductId -submissionid $SubmissionId -shippinglabelid $ShippingLabelId
+Assert-SdcmSuccess "Wait for Shipping Label"
 
 Write-Output "> Done"
 
