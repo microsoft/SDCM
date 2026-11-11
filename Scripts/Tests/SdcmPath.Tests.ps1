@@ -59,8 +59,7 @@ function Invoke-Script([string] $ScriptPath, [string[]] $Arguments, [string] $Wo
 $Cases = @(
   @{ Name = "Attestation.ps1"; Args = @("Prod", "WINDOWS_v100_X64_RS4_FULL", "INPUT"); Expected = @("-create CreateAttest.json", "-create CreateSubmissionAttest.json -productid 111", "-commit -productid 111 -submissionid 222", "-wait -productid 111 -submissionid 222") },
   @{ Name = "HLKx.ps1"; Args = @("Prod", "WINDOWS_v100_X64_RS4_FULL", "INPUT"); Expected = @("-create CreateHLK.json", "-create CreateSubmissionHLK.json -productid 111", "-commit -productid 111 -submissionid 222", "-wait -productid 111 -submissionid 222") },
-  # KnownIssue: ShippingLabel.ps1 references undefined $ProductName under StrictMode (pre-existing), so steps after the first sdcm call do not run.
-  @{ Name = "ShippingLabel.ps1"; Args = @("111", "222", "chid"); KnownIssue = $true; Expected = @("-wait -waitmetadata -productid 111 -submissionid 222") }
+  @{ Name = "ShippingLabel.ps1"; Args = @("111", "222", "chid"); Expected = @("-wait -waitmetadata -productid 111 -submissionid 222", "-create CreateShippingLabel.json -productid 111 -submissionid 222", "-wait -productid 111 -submissionid 222 -shippinglabelid 333") }
 )
 
 try {
@@ -89,12 +88,7 @@ try {
 	# Runs from a different working directory that also contains an sdcm.exe
 	$r = Invoke-Script (Join-Path $GoodDir $case.Name) $scriptArgs $WorkDir
 	$scriptDirLog = Join-Path $WorkDir "scriptdir.log"
-	if ($case.ContainsKey("KnownIssue")) {
-	  Write-Output "  SKIP: full run success (known pre-existing issue)"
-	}
-	else {
-	  Assert-True ($r.ExitCode -eq 0) "succeeds from an unrelated working directory (exit $($r.ExitCode))"
-	}
+	Assert-True ($r.ExitCode -eq 0) "succeeds from an unrelated working directory (exit $($r.ExitCode))"
 	Assert-True (-not (Test-Path (Join-Path $WorkDir "workdir.log"))) "sdcm.exe in the working directory is not used"
 	Assert-True (Test-Path $scriptDirLog) "sdcm.exe next to the script is invoked"
 	if (Test-Path $scriptDirLog) {

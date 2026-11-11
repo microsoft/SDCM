@@ -27,6 +27,9 @@
 
 .PARAMETER Ceiling
     Highest OS the driver is available for
+
+.PARAMETER ProductName
+    Optional name used as the prefix for the Shipping Label name. Defaults to ProductId
 #>
 #Requires -Version 5.0
 
@@ -50,7 +53,10 @@ param(
   [string] $Floor = "19H1",
 
   [Parameter(Mandatory = $false, Position = 6)]
-  [string] $Ceiling = "19H1"
+  [string] $Ceiling = "19H1",
+
+  [Parameter(Mandatory = $false, Position = 7)]
+  [string] $ProductName = $ProductId
 )
 
 ###################################################################################################
