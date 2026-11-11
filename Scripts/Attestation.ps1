@@ -47,7 +47,11 @@ trap {
 ###################################################################################################
 $global:ErrorActionPreference = "stop"
 Set-StrictMode -Version Latest
-$SCDM = ".\sdcm.exe"
+$SCDM = Join-Path $PSScriptRoot "sdcm.exe"
+if (-not (Test-Path -LiteralPath $SCDM -PathType Leaf)) {
+  Write-Output "sdcm.exe not found at expected location: $SCDM"
+  exit 1
+}
 
 ###################################################################################################
 # Functions
