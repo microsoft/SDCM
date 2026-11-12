@@ -27,6 +27,9 @@
 
 .PARAMETER Ceiling
     Highest OS the driver is available for
+
+.PARAMETER ProductName
+    Optional name used as the prefix for the Shipping Label name. Defaults to ProductId
 #>
 #Requires -Version 5.0
 
@@ -50,7 +53,10 @@ param(
   [string] $Floor = "19H1",
 
   [Parameter(Mandatory = $false, Position = 6)]
-  [string] $Ceiling = "19H1"
+  [string] $Ceiling = "19H1",
+
+  [Parameter(Mandatory = $false, Position = 7)]
+  [string] $ProductName = $ProductId
 )
 
 ###################################################################################################
@@ -68,7 +74,18 @@ trap {
 ###################################################################################################
 $global:ErrorActionPreference = "stop"
 Set-StrictMode -Version Latest
-$SDCM = ".\sdcm.exe"
+$SDCM = Join-Path $PSScriptRoot "sdcm.exe"
+if (-not (Test-Path -LiteralPath $SDCM -PathType Leaf)) {
+  Write-Output "sdcm.exe not found at expected location: $SDCM"
+  exit 1
+}
+
+function Assert-SdcmSuccess([string] $Step) {
+  if ($LASTEXITCODE -ne 0) {
+    Write-Output "sdcm.exe failed during '$Step' with exit code $LASTEXITCODE"
+    exit $LASTEXITCODE
+  }
+}
 
 ###################################################################################################
 # Functions
@@ -83,6 +100,7 @@ Write-Output ""
 
 Write-Output "> Wait for Driver Metadata to be ready"
 & $SDCM -wait -waitmetadata -productid $ProductId -submissionid $SubmissionId
+Assert-SdcmSuccess "Wait for Driver Metadata"
 
 Write-Output "> Generate Shipping Label json"
 $CreateShippingLabelJson = @"
@@ -141,6 +159,8 @@ $CreateShippingLabelJson | Out-File -encoding ASCII CreateShippingLabel.json
 
 Write-Output "> Create Shipping Label"
 $output = & $SDCM -create CreateShippingLabel.json -productid $ProductId -submissionid $SubmissionId
+if ($LASTEXITCODE -ne 0) { Write-Output $output }
+Assert-SdcmSuccess "Create Shipping Label"
 if (-not ([string]$output -match "---- Shipping Label: (\d+)")) {
   Write-Output "Did not find shipping label ID"
   Write-Output $output
@@ -151,6 +171,7 @@ Write-Output "    * ShippingLabelId: $ShippingLabelId"
 
 Write-Output "> Wait for Shipping Label"
 & $SDCM -wait -productid $ProductId -submissionid $SubmissionId -shippinglabelid $ShippingLabelId
+Assert-SdcmSuccess "Wait for Shipping Label"
 
 Write-Output "> Done"
 
